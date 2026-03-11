@@ -1,20 +1,33 @@
 function TopMenu({ categoriaSelecionada, aoSelecionarMetodo }) {
-    if (categoriaSelecionada !== "Zero de Funções") {
+
+
+    const metodosDisponiveis = {
+        "Zero de Funções": ["Bisseção", "Newton"],
+        "Interpolação": ["Lagrange", "Newton"],
+        "Integrais": ["Trapézio", "Simpson"]
+    }
+
+    const metodosDaCategoria =  metodosDisponiveis[categoriaSelecionada]
+
+    if (!metodosDaCategoria) {
         return null;
     }
 
     return (
         <div style={{marginBottom: "20px", padding: "10px", borderBottom: "1px solid #ccc"}}>
 
-            <button onClick={() => aoSelecionarMetodo("Bisseção")}>
-                Bisseção
-            </button>
+           {metodosDaCategoria.map((metodosDisponiveis, index) => (
 
-            <button 
-                style={{marginLeft: "10px"}}
-                onClick={() => aoSelecionarMetodo("Newton")}>
-                Newton
-            </button>
+                <button
+                    key={index}
+                    style={{marginRight: "10px" }}
+                    onClick={() => aoSelecionarMetodo(metodosDisponiveis)}
+                >   
+                    {metodosDisponiveis}
+                </button>
+
+
+           ))}
             
         </div>
     )
