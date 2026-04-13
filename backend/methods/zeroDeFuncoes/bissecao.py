@@ -14,3 +14,31 @@ def bissec(a,b,criterio,funcao):
         b = media
       i+=1
   print("A raiz da função é: " + str(media))
+
+
+
+
+  #Chat falou que assim esta correto
+  from .utils import F
+
+def bissecao(a, b, criterio, funcao):
+    if F(funcao, a) * F(funcao, b) > 0:
+        return {"erro": "Não há raiz no intervalo"}
+
+    i = 0
+    media = (a + b) / 2
+
+    while abs(F(funcao, media)) > criterio:
+        media = (a + b) / 2
+
+        if F(funcao, a) * F(funcao, media) > 0:
+            a = media
+        else:
+            b = media
+
+        i += 1
+
+    return {
+        "raiz": float(media),
+        "iteracoes": i
+    }
