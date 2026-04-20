@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sympy as sp
 
+from methods.sistemasLineares.jacobi import jacobi
+from methods.sistemasLineares.gauss_seidel import gauss_seidel
+
 app = FastAPI()
 
 # Permite que o React (geralmente na porta 3000 ou 5173) acesse o Python
@@ -20,6 +23,13 @@ class BissecaoInput(BaseModel):
     a: float
     b: float
     criterio: float
+
+
+class SistemaInput(BaseModel):
+    A: list
+    b: list
+    chute: list
+    tolerancia: float
 
 
 def calcular_f(expressao, x_val):
@@ -55,3 +65,17 @@ async def bissecao(data: BissecaoInput):
         i += 1
 
     return {"raiz": media, "iteracoes": iteracoes}
+
+
+
+# Rotas para os métodos de sistemas lineares (Jacobi e Seidel)
+@app.post("/jacobi")
+async def calcular_jacobi(data: SistemaInput):
+    resultado = jacobi(data.A, data.b, data.chute, data.tolerancia)
+    return resultado
+
+
+@app.post("/gauss-seidel")
+async def calcular_gauss(data: SistemaInput):
+    resultado = gauss_seidel(data.A, data.b, data.chute, data.tolerancia)
+    return resultado

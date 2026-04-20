@@ -31,6 +31,8 @@ function App() {
 
       
       {metodoSelecionado === "Bisseção" && <Bissecao />}  
+      {metodoSelecionado === "Jacobi" && <h2>Método de Jacobi</h2>}
+      {metodoSelecionado === "Gauss-Seidel" && <h2>Método de Gauss-Seidel</h2>} 
 
     </MainLayout>
 

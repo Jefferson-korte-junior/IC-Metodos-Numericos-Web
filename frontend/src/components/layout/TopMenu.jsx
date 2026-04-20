@@ -2,7 +2,8 @@ function TopMenu({ categoriaSelecionada, aoSelecionarMetodo }) {
 
 
     const metodosDisponiveis = {
-        "Zero de Funções": ["Bisseção", "Newton"],
+        "Zero de Funções": ["Bisseção", "Newton", "secante"],
+        "Sistemas Lineares": ["Jacobi", "Gauss-Seidel"],
         "Interpolação": ["Lagrange", "Newton"],
         "Integrais": ["Trapézio", "Simpson"]
     }
