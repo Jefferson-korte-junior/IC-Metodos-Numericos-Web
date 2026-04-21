@@ -9,7 +9,6 @@ from methods.sistemasLineares.gauss_seidel import gauss_seidel
 
 app = FastAPI()
 
-# Permite que o React (geralmente na porta 3000 ou 5173) acesse o Python
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,7 +33,6 @@ class SistemaInput(BaseModel):
 
 def calcular_f(expressao, x_val):
     x = sp.symbols('x')
-    # Transforma a string em uma função matemática
     expr = sp.parse_expr(expressao.replace('^', '**'))
     return float(expr.subs(x, x_val))
 
@@ -45,30 +43,53 @@ async def bissecao(data: BissecaoInput):
     f_str = data.funcao
     crit = data.criterio
 
-    if calcular_f(f_str, a) * calcular_f(f_str, b) > 0:
+    fa_inicial = calcular_f(f_str, a)
+    fb_inicial = calcular_f(f_str, b)
+
+    if fa_inicial * fb_inicial > 0:
         return {"erro": "Não é possível afirmar que há raízes no intervalo [a, b]"}
 
-    media = (a + b) / 2
     iteracoes = []
     i = 0
 
-    while abs(calcular_f(f_str, media)) > crit and i < 100:
+    while i < 100:
+        fa = calcular_f(f_str, a)
+        fb = calcular_f(f_str, b)
         media = (a + b) / 2
-        valor_f = calcular_f(f_str, media)
+        fm = calcular_f(f_str, media)
 
-        iteracoes.append({"iteracao": i, "media": media, "f_x": valor_f})
+        # Decide qual extremo substituir
+        if fa * fm > 0:
+            substituiu = "a"
+        else:
+            substituiu = "b"
 
-        if calcular_f(f_str, a) * valor_f > 0:
+        iteracoes.append({
+            "iteracao": i,
+            "a": a,
+            "b": b,
+            "media": media,
+            "fa": fa,
+            "fb": fb,
+            "fm": fm,
+            "substituiu": substituiu,
+        })
+
+        # Critério de parada
+        if abs(fm) <= crit:
+            break
+
+        # Atualiza o intervalo após registrar
+        if substituiu == "a":
             a = media
         else:
             b = media
+
         i += 1
 
     return {"raiz": media, "iteracoes": iteracoes}
 
 
-
-# Rotas para os métodos de sistemas lineares (Jacobi e Seidel)
 @app.post("/jacobi")
 async def calcular_jacobi(data: SistemaInput):
     resultado = jacobi(data.A, data.b, data.chute, data.tolerancia)
@@ -79,3 +100,7 @@ async def calcular_jacobi(data: SistemaInput):
 async def calcular_gauss(data: SistemaInput):
     resultado = gauss_seidel(data.A, data.b, data.chute, data.tolerancia)
     return resultado
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

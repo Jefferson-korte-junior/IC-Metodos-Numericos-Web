@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
+import CardIteracaoBissecao from '../components/bisseccao/CardIteracaoBissecao';
 
 function Bissecao() {
-    // 1. Estados para armazenar as entradas do usuário
     const [funcao, setFuncao] = useState('x**2 - 4');
     const [a, setA] = useState(0);
     const [b, setB] = useState(3);
     const [criterio, setCriterio] = useState(0.0001);
 
-    // 2. Estados para armazenar a resposta do servidor
     const [resultado, setResultado] = useState(null);
     const [erro, setErro] = useState(null);
     const [carregando, setCarregando] = useState(false);
 
-    // 3. Função para enviar os dados ao backend
     const handleCalcular = async () => {
         setCarregando(true);
         setErro(null);
@@ -22,11 +20,11 @@ function Bissecao() {
             const response = await fetch('http://127.0.0.1:8000/calcular', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    funcao: funcao, 
-                    a: parseFloat(a), 
-                    b: parseFloat(b), 
-                    criterio: parseFloat(criterio) 
+                body: JSON.stringify({
+                    funcao: funcao,
+                    a: parseFloat(a),
+                    b: parseFloat(b),
+                    criterio: parseFloat(criterio)
                 }),
             });
 
@@ -45,10 +43,9 @@ function Bissecao() {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '600px' }}>
+        <div style={{ padding: '20px', maxWidth: '800px' }}>
             <h2>Método da Bisseção</h2>
 
-            {/* Inputs de Dados */}
             <div style={{ marginBottom: '10px' }}>
                 <label>f(x): </label>
                 <input type="text" value={funcao} onChange={(e) => setFuncao(e.target.value)} />
@@ -75,34 +72,18 @@ function Bissecao() {
 
             <hr />
 
-            {/* Exibição de Resultados ou Erros */}
             {erro && <p style={{ color: 'red' }}><strong>Erro:</strong> {erro}</p>}
 
             {resultado && (
                 <div>
-                    <h3>Resultado Encontrado:</h3>
-                    <p><strong>Raiz aproximada:</strong> {resultado.raiz}</p>
-                    <p><strong>Iterações:</strong> {resultado.total_iteracoes}</p>
+                    <p><strong>Raiz aproximada:</strong> {resultado.raiz.toFixed(6)}</p>
+                    <p><strong>Total de iterações:</strong> {resultado.iteracoes.length}</p>
 
-                    <h4>Tabela de Iterações:</h4>
-                    <table border="1" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr>
-                                <th>i</th>
-                                <th>Média (x)</th>
-                                <th>f(x)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {resultado?.tabela?.map((item) => (
-                                <tr key={item.iteracao}>
-                                    <td>{item.iteracao}</td>
-                                    <td>{item.media}</td>
-                                    <td>{item.f_media}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    {/* Cards de iteração com gráficos */}
+                    <CardIteracaoBissecao
+                        iteracoes={resultado.iteracoes}
+                        funcao={funcao}
+                    />
                 </div>
             )}
         </div>
