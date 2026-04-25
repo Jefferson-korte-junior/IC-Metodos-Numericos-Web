@@ -1,12 +1,16 @@
 // CardIteracaoBissecao.jsx
 // Coloque este arquivo em: frontend/src/components/CardIteracaoBissecao.jsx
 //
-// Dependência necessária:
-//   npm install react-chartjs-2 chart.js
+// Dependências necessárias:
+//   npm install react-chartjs-2 chart.js katex
 //
 // Uso:
 //   import CardIteracaoBissecao from './components/CardIteracaoBissecao'
-//   <CardIteracaoBissecao iteracoes={resposta.iteracoes} funcao="x**2 - 4" />
+//   <CardIteracaoBissecao
+//     iteracoes={resposta.iteracoes}
+//     funcao="x**2 - 4"
+//     nivelDetalhe="basico" | "intermediario" | "completo"
+//   />
 
 import { useEffect, useRef } from "react";
 import {
@@ -17,6 +21,8 @@ import {
   Tooltip,
 } from "chart.js";
 import { Scatter } from "react-chartjs-2";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip);
 
@@ -83,12 +89,10 @@ const pluginLinhaZero = {
 
 // ── Mini gráfico de uma iteração
 function GraficoIteracao({ iter, funcao }) {
-  // Zoom em x: centralizado na média, intervalo (a-delta, b+delta)
   const delta = Math.max((iter.b - iter.a) * 0.3, 0.3);
   const xMin = iter.a - delta;
   const xMax = iter.b + delta;
 
-  // Zoom em y: baseado nos valores reais de f(a) e f(b)
   const fVals = [iter.fa, iter.fb, iter.fm];
   const fMin = Math.min(...fVals);
   const fMax = Math.max(...fVals);
@@ -97,9 +101,6 @@ function GraficoIteracao({ iter, funcao }) {
   const yMax = fMax + epsilon;
 
   const curva = gerarCurva(funcao, xMin, xMax);
-
-  // Garante que a média fique centralizada horizontalmente
-  const xCenter = iter.media;
 
   const data = {
     datasets: [
@@ -209,7 +210,6 @@ function LinhaPonto({ rotulo, valor, fval, cor, forma = "circle" }) {
         marginBottom: 6,
       }}
     >
-      {/* indicador visual */}
       <div
         style={{
           width: forma === "triangle" ? 0 : 10,
@@ -230,14 +230,193 @@ function LinhaPonto({ rotulo, valor, fval, cor, forma = "circle" }) {
   );
 }
 
-// ── Card de uma iteração
-function CardIteracao({ iter, funcao, index }) {
+// ── Painel de explicação matemática detalhada com LaTeX
+function ExplicacaoMatematica({ iter }) {
   const { a, b, media, fa, fb, fm, substituiu } = iter;
 
   const textoSubstituicao =
     substituiu === "a"
-      ? `f(a) e f(média) tem o mesmo sinal: Trocamos a pela média.`
-      : `f(b) e f(média) tem o mesmo sinal: Trocamos b pela média.`;
+      ? `f(a) e f(média) têm o mesmo sinal: Trocamos a pela média.`
+      : `f(b) e f(média) têm o mesmo sinal: Trocamos b pela média.`;
+  const mesmoSinalComA = Math.sign(fa) === Math.sign(fm);
+  const corA = corPonto(fa);
+  const corB = corPonto(fb);
+  const corM = COR_MID;
+
+  return (
+    <div
+      style={{
+        marginTop: "1rem",
+        background: "linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%)",
+        border: "0.5px solid rgba(60,52,137,0.15)",
+        borderRadius: 10,
+        padding: "1rem 1.25rem",
+      }}
+    >
+      {/* Título */}
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 600,
+          color: "#3c3489",
+          marginBottom: "0.85rem",
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+        }}
+      >
+        Análise Detalhada da Iteração
+      </div>
+
+      {/* Bloco 1: Cálculo da média */}
+      <BlocoLatex titulo="1. Cálculo do ponto médio">
+        <LinhaLatex
+          formula={`m = \\frac{a + b}{2} = \\frac{${a.toFixed(5)} + ${b.toFixed(5)}}{2} = ${media.toFixed(6)}`}
+        />
+      </BlocoLatex>
+
+      {/* Bloco 2: Avaliação dos sinais */}
+      <BlocoLatex titulo="2. Avaliação dos sinais">
+        <LinhaLatex
+          formula={`f(a) = f(${a.toFixed(5)}) = ${fa.toFixed(6)} \\quad \\Rightarrow \\quad ${fa < 0 ? "f(a) < 0" : "f(a) > 0"}`}
+          cor={corA}
+        />
+        <LinhaLatex
+          formula={`f(b) = f(${b.toFixed(5)}) = ${fb.toFixed(6)} \\quad \\Rightarrow \\quad ${fb < 0 ? "f(b) < 0" : "f(b) > 0"}`}
+          cor={corB}
+        />
+        <LinhaLatex
+          formula={`f(m) = f(${media.toFixed(5)}) = ${fm.toFixed(6)} \\quad \\Rightarrow \\quad ${fm < 0 ? "f(m) < 0" : "f(m) > 0"}`}
+          cor={corM}
+        />
+      </BlocoLatex>
+
+      {/* Bloco 3: Verificação do Teorema de Bolzano */}
+      <BlocoLatex titulo="3. Verificação (Teorema de Bolzano)">
+        {mesmoSinalComA ? (
+          <>
+            <LinhaLatex
+              formula={`f(a) \\cdot f(m) = (${fa.toFixed(4)}) \\cdot (${fm.toFixed(4)}) = ${(fa * fm).toFixed(6)} > 0`}
+            />
+            <LinhaLatex
+              formula={`\\text{f(m) e f(a) têm o mesmo sinal} \\Rightarrow \\text{Substituímos a pela media m}`}
+            />
+
+            <LinhaLatex
+              formula={`\\Rightarrow \\text{raiz em } [m,\\, b] = [${media.toFixed(5)},\\, ${b.toFixed(5)}]`}
+            />
+          </>
+        ) : (
+          <>
+            <LinhaLatex
+              formula={`f(m) \\cdot f(b) = (${fm.toFixed(4)}) \\cdot (${fb.toFixed(4)}) = ${(fm * fb).toFixed(6)} > 0`}
+            />
+            <LinhaLatex
+              formula={`\\text{f(m) e f(b) têm o mesmo sinal} \\Rightarrow \\text{Substituímos a pela media m}`}
+            />
+
+            <LinhaLatex
+              formula={`\\Rightarrow \\text{raiz em } [a,\\, m] = [${a.toFixed(5)},\\, ${media.toFixed(5)}]`}
+            />
+          </>
+        )}
+      </BlocoLatex>
+
+      {/* Bloco 4: Atualização do intervalo */}
+      <BlocoLatex titulo="4. Atualização do intervalo">
+        {substituiu === "a" ? (
+          <LinhaLatex
+            formula={`a \\leftarrow m = ${media.toFixed(6)}, \\quad b \\text{ permanece } = ${b.toFixed(6)}`}
+          />
+        ) : (
+          <LinhaLatex
+            formula={`b \\leftarrow m = ${media.toFixed(6)}, \\quad a \\text{ permanece } = ${a.toFixed(6)}`}
+          />
+        )}
+      </BlocoLatex>
+
+      {/* Bloco 5: Tamanho do intervalo */}
+      <BlocoLatex titulo="5. Redução do intervalo">
+        <LinhaLatex
+          formula={`|b - a| = |${b.toFixed(5)} - ${a.toFixed(5)}| = ${Math.abs(b - a).toFixed(6)}`}
+        />
+        <LinhaLatex
+          formula={`\\text{Próximo intervalo: } \\frac{|b-a|}{2} = \\frac{${Math.abs(b - a).toFixed(6)}}{2} = ${(Math.abs(b - a) / 2).toFixed(6)}`}
+        />
+        <LinhaLatex
+          formula={`\\text{Taxa de convergência: } \\mathcal{O}\\!\\left(\\frac{1}{2^n}\\right)`}
+        />
+      </BlocoLatex>
+    </div>
+  );
+}
+
+// ── Sub-componentes auxiliares para o painel LaTeX
+
+function BlocoLatex({ titulo, children }) {
+  return (
+    <div style={{ marginBottom: "0.85rem" }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: "#666",
+          marginBottom: "0.35rem",
+          letterSpacing: "0.02em",
+        }}
+      >
+        {titulo}
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 7,
+          padding: "0.55rem 0.85rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          border: "0.5px solid rgba(0,0,0,0.07)",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function LinhaLatex({ formula, cor }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current) {
+      katex.render(formula, ref.current, {
+        throwOnError: false,
+        displayMode: true,
+      });
+    }
+  }, [formula]);
+  return (
+    <div
+      ref={ref}
+      style={{
+        fontSize: 13,
+        color: cor || "#222",
+        overflowX: "auto",
+      }}
+    />
+  );
+}
+
+// ── Card de uma iteração
+// nivelDetalhe: "basico" | "intermediario" | "completo"
+function CardIteracao({ iter, funcao, index, nivelDetalhe }) {
+  const { a, b, media, fa, fb, fm, substituiu } = iter;
+
+  const textoSubstituicao =
+    substituiu === "a"
+      ? `f(a) e f(média) têm o mesmo sinal: Trocamos a pela média.`
+      : `f(b) e f(média) têm o mesmo sinal: Trocamos b pela média.`;
+
+  const mostrarGrafico = nivelDetalhe === "intermediario" || nivelDetalhe === "completo";
+  const mostrarExplicacao = nivelDetalhe === "completo";
 
   return (
     <div
@@ -261,18 +440,18 @@ function CardIteracao({ iter, funcao, index }) {
             borderRadius: 6,
           }}
         >
-          Iteração {index}
+          Iteração {index + 1}
         </span>
         <span style={{ fontSize: 12, color: "#888" }}>
           |f(média)| = {Math.abs(fm).toFixed(6)}
         </span>
       </div>
 
-      {/* Grid: info + gráfico */}
+      {/* Layout: só info (básico) ou info + gráfico (intermediário/completo) */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: mostrarGrafico ? "1fr 1fr" : "1fr",
           gap: 16,
           alignItems: "start",
         }}
@@ -282,12 +461,7 @@ function CardIteracao({ iter, funcao, index }) {
           <LinhaPonto rotulo="a" valor={a} fval={fa} cor={corPonto(fa)} />
           <LinhaPonto rotulo="b" valor={b} fval={fb} cor={corPonto(fb)} />
 
-          <div
-            style={{
-              borderTop: "0.5px solid rgba(0,0,0,0.1)",
-              margin: "8px 0",
-            }}
-          />
+          <div style={{ borderTop: "0.5px solid rgba(0,0,0,0.1)", margin: "8px 0" }} />
 
           <LinhaPonto
             rotulo="média"
@@ -297,22 +471,23 @@ function CardIteracao({ iter, funcao, index }) {
             forma="triangle"
           />
 
-          <div
-            style={{
-              borderTop: "0.5px solid rgba(0,0,0,0.1)",
-              margin: "8px 0",
-            }}
-          />
+          <div style={{ borderTop: "0.5px solid rgba(0,0,0,0.1)", margin: "8px 0" }} />
 
-          {/* Ação */}
           <p style={{ fontSize: 12, color: "#666", lineHeight: 1.5 }}>
             {textoSubstituicao}
           </p>
         </div>
 
-        {/* Coluna direita: gráfico */}
-        <GraficoIteracao iter={iter} funcao={funcao} />
+        {/* Coluna direita: gráfico — apenas intermediário e completo */}
+        {mostrarGrafico && (
+          <GraficoIteracao iter={iter} funcao={funcao} />
+        )}
       </div>
+
+      {/* Explicação matemática detalhada com LaTeX — apenas completo */}
+      {mostrarExplicacao && (
+        <ExplicacaoMatematica iter={iter} />
+      )}
     </div>
   );
 }
@@ -336,14 +511,28 @@ function Legenda() {
 }
 
 // ── Componente principal exportado
-export default function CardIteracaoBissecao({ iteracoes = [], funcao = "" }) {
+// Props:
+//   iteracoes: array de objetos { a, b, media, fa, fb, fm, substituiu }
+//   funcao: string da função (ex: "x**2 - 4")
+//   nivelDetalhe: "basico" | "intermediario" | "completo"  (default: "basico")
+export default function CardIteracaoBissecao({
+  iteracoes = [],
+  funcao = "",
+  nivelDetalhe = "basico",
+}) {
   if (!iteracoes.length) return null;
 
   return (
     <div style={{ marginTop: "1.5rem" }}>
       <Legenda />
       {iteracoes.map((iter, idx) => (
-        <CardIteracao key={idx} iter={iter} funcao={funcao} index={idx} />
+        <CardIteracao
+          key={idx}
+          iter={iter}
+          funcao={funcao}
+          index={idx}
+          nivelDetalhe={nivelDetalhe}
+        />
       ))}
     </div>
   );
