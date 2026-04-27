@@ -1,6 +1,7 @@
 // Bissecao.jsx
 import React, { useState, useEffect, useRef } from "react";
 import CardIteracaoBissecao from "../components/bisseccao/CardIteracaoBissecao";
+import BissecaoInterativa from "../components/bisseccao/BissecaoInterativa";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
@@ -8,16 +9,12 @@ import "katex/dist/katex.min.css";
 function FuncaoLatex({ funcao }) {
   const ref = useRef(null);
 
-  // Converte a string da função para LaTeX legível
   function toLatex(expr) {
     if (!expr.trim()) return "f(x) = {\\color{#aaa}\\text{...}}";
     let s = expr.trim();
-    // Potências: x**2 → x^{2}, (x+1)**3 → (x+1)^{3}
     s = s.replace(/\*\*(\d+)/g, "^{$1}");
-    // Multiplicação implícita: 2*x → 2x
     s = s.replace(/(\d)\*([a-zA-Z(])/g, "$1$2");
     s = s.replace(/([a-zA-Z])\*([a-zA-Z(])/g, "$1 $2");
-    // Funções matemáticas
     s = s.replace(/Math\.sin|sin/g, "\\sin");
     s = s.replace(/Math\.cos|cos/g, "\\cos");
     s = s.replace(/Math\.tan|tan/g, "\\tan");
@@ -55,7 +52,6 @@ function FuncaoLatex({ funcao }) {
     />
   );
 }
-
 
 // ── Campo de input numérico reutilizável
 function CampoNumerico({ label, value, onChange, placeholder, step = "any" }) {
@@ -98,18 +94,19 @@ export default function Bissecao() {
   const [maxIter, setMaxIter] = useState("");
   const [iteracoes, setIteracoes] = useState([]);
   const [erro, setErro] = useState("");
+  const [chaveInterativo, setChaveInterativo] = useState(0);
 
   const niveisDetalhe = [
     { value: "basico", label: "Básico" },
     { value: "intermediario", label: "Intermediário" },
     { value: "completo", label: "Completo" },
+    { value: "interativo", label: "Interativo" },
   ];
 
   function handleCalcular() {
     setErro("");
     setIteracoes([]);
 
-    // Validações básicas
     const a = parseFloat(valA);
     const b = parseFloat(valB);
     const tol = parseFloat(tolerancia);
@@ -120,7 +117,6 @@ export default function Bissecao() {
     if (a >= b) return setErro("O valor de a deve ser menor que b.");
     if (isNaN(tol) || tol <= 0) return setErro("Informe uma tolerância válida (ex: 0.0001).");
 
-    // Avalia f(x)
     function f(xVal) {
       try {
         const expr = funcao
@@ -145,7 +141,6 @@ export default function Bissecao() {
     if (isNaN(fa0) || isNaN(fb0)) return setErro("Não foi possível avaliar f(x) no intervalo informado.");
     if (fa0 * fb0 > 0) return setErro("f(a) e f(b) têm o mesmo sinal — o método não garante raiz nesse intervalo.");
 
-    // Executa bisseção
     let ai = a, bi = b;
     const resultado = [];
 
@@ -166,6 +161,7 @@ export default function Bissecao() {
     }
 
     setIteracoes(resultado);
+    setChaveInterativo((k) => k + 1);
   }
 
   return (
@@ -191,7 +187,6 @@ export default function Bissecao() {
             maxWidth: 640,
           }}
         >
-          {/* Preview KaTeX à esquerda */}
           <div
             style={{
               flexShrink: 0,
@@ -205,7 +200,6 @@ export default function Bissecao() {
             <FuncaoLatex funcao={funcao} />
           </div>
 
-          {/* Input */}
           <input
             type="text"
             value={funcao}
@@ -227,7 +221,7 @@ export default function Bissecao() {
         </p>
       </div>
 
-      {/* Campos a, b, tolerância, máx. iterações — em grid */}
+      {/* Campos a, b, tolerância, máx. iterações */}
       <div
         style={{
           display: "grid",
@@ -266,11 +260,7 @@ export default function Bissecao() {
           flexWrap: "wrap",
           marginBottom: 24,
         }}
-        
-        
-        
       >
-        {/* Botão */}
         <button
           onClick={handleCalcular}
           style={{
@@ -288,10 +278,8 @@ export default function Bissecao() {
           Calcular
         </button>
 
-        {/* Separador visual */}
         <div style={{ width: 1, height: 28, background: "#ddd", flexShrink: 0 }} />
 
-        {/* Radio: nível de detalhe */}
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: "#666", marginRight: 6 }}>
             Detalhamento:
@@ -347,12 +335,23 @@ export default function Bissecao() {
         </div>
       )}
 
-      {/* Resultado */}
-      {iteracoes.length > 0 && (
+      {/* Resultado — modos Básico / Intermediário / Completo */}
+      {iteracoes.length > 0 && nivelDetalhe !== "interativo" && (
         <CardIteracaoBissecao
           iteracoes={iteracoes}
           funcao={funcao}
           nivelDetalhe={nivelDetalhe}
+        />
+      )}
+
+      {/* Resultado — modo Interativo */}
+      {iteracoes.length > 0 && nivelDetalhe === "interativo" && (
+        <BissecaoInterativa
+          key={chaveInterativo}
+          funcao={funcao}
+          a={parseFloat(valA)}
+          b={parseFloat(valB)}
+          tolerancia={parseFloat(tolerancia)}
         />
       )}
     </div>
