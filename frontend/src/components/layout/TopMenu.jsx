@@ -1,36 +1,32 @@
-function TopMenu({ categoriaSelecionada, aoSelecionarMetodo }) {
+import Botao from "../UI/Botao";
 
+function TopMenu({ categoriaSelecionada, aoSelecionarMetodo, metodoAtivo }) {
 
     const metodosDisponiveis = {
-        "Zero de Funções": ["Bisseção", "Newton", "secante"],
+        "Zero de Funções":   ["Bisseção", "Newton", "secante"],
         "Sistemas Lineares": ["Jacobi", "Gauss-Seidel"],
-        "Interpolação": ["Lagrange", "Newton"],
-        "Integrais": ["Trapézio", "Simpson"]
-    }
+        "Interpolação":      ["Lagrange", "Newton"],
+        "Integrais":         ["Trapézio", "Simpson"],
+    };
 
-    const metodosDaCategoria =  metodosDisponiveis[categoriaSelecionada]
+    const metodosDaCategoria = metodosDisponiveis[categoriaSelecionada];
 
-    if (!metodosDaCategoria) {
-        return null;
-    }
+    if (!metodosDaCategoria) return null;
 
     return (
-        <div style={{marginBottom: "20px", padding: "10px", borderBottom: "1px solid #ccc"}}>
-
-           {metodosDaCategoria.map((metodosDisponiveis, index) => ( //.map é para passar por todos os elements do array (vetor metodosDaCategoria)
-
-                <button
+        <div style={{ marginBottom: "20px", padding: "10px", borderBottom: "1px solid #ccc", display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {metodosDaCategoria.map((metodo, index) => (
+                <Botao
                     key={index}
-                    style={{marginRight: "10px" }}
-                    onClick={() => aoSelecionarMetodo(metodosDisponiveis)}
-                >   
-                    {metodosDisponiveis}
-                </button>
-
-
-           ))}
-            
+                    variante="metodo"
+                    ativo={metodoAtivo === metodo}
+                    onClick={() => aoSelecionarMetodo(metodo)}
+                >
+                    {metodo}
+                </Botao>
+            ))}
         </div>
-    )
+    );
 }
+
 export default TopMenu;

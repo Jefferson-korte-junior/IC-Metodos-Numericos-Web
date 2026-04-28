@@ -25,7 +25,8 @@ function App() {
 
       <TopMenu
         aoSelecionarMetodo={setMetodoSelecionado} 
-        categoriaSelecionada={categoriaSelecionada}>
+        categoriaSelecionada={categoriaSelecionada}
+        metodoAtivo={metodoSelecionado}>
 
       </TopMenu> 
 
