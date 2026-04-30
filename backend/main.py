@@ -1,105 +1,128 @@
-# main.py
-from fastapi import FastAPI
+"""
+main.py — Backend FastAPI 
+
+Endpoints de métodos numéricos:
+  POST /calcular       → Bisseção
+  POST /newton         → Newton-Raphson
+  POST /secante        → Secante
+  POST /jacobi         → Jacobi (sistemas lineares)
+  POST /gauss-seidel   → Gauss-Seidel (sistemas lineares)
+
+ARQUITETURA:
+  Toda lógica de cálculo vive nos módulos de método.
+  Este arquivo é responsável apenas por receber, validar e rotear requisições.
+"""
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import sympy as sp
 
+from methods.zeroDeFuncoes.bissecao import bissecao
+from methods.zeroDeFuncoes.newton import newton
+from methods.zeroDeFuncoes.secante import secante
 from methods.sistemasLineares.jacobi import jacobi
 from methods.sistemasLineares.gauss_seidel import gauss_seidel
 
-app = FastAPI()
+app = FastAPI(title="IC — API de Métodos Numéricos")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],   # Em produção: restringir para o domínio do frontend
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-class BissecaoInput(BaseModel):
+# ---------------------------------------------------------------------------
+# Schemas de entrada
+# ---------------------------------------------------------------------------
+
+class EntradaMetodoUniDimensional(BaseModel):
     funcao: str
-    a: float
-    b: float
     criterio: float
 
 
-class SistemaInput(BaseModel):
+class EntradaBissecao(EntradaMetodoUniDimensional):
+    a: float
+    b: float
+
+
+class EntradaNewton(EntradaMetodoUniDimensional):
+    inicial: float
+
+
+class EntradaSecante(EntradaMetodoUniDimensional):
+    a: float
+    b: float
+
+
+class EntradaSistema(BaseModel):
     A: list
     b: list
     chute: list
     tolerancia: float
 
 
-def calcular_f(expressao, x_val):
-    x = sp.symbols('x')
-    expr = sp.parse_expr(expressao.replace('^', '**'))
-    return float(expr.subs(x, x_val))
-
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
 
 @app.post("/calcular")
-async def bissecao(data: BissecaoInput):
-    a, b = data.a, data.b
-    f_str = data.funcao
-    crit = data.criterio
+async def endpoint_bissecao(data: EntradaBissecao):
+    """Método da Bisseção."""
+    try:
+        return bissecao(
+            funcao=data.funcao,
+            a=data.a,
+            b=data.b,
+            criterio=data.criterio,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
-    fa_inicial = calcular_f(f_str, a)
-    fb_inicial = calcular_f(f_str, b)
 
-    if fa_inicial * fb_inicial > 0:
-        return {"erro": "Não é possível afirmar que há raízes no intervalo [a, b]"}
+@app.post("/newton")
+async def endpoint_newton(data: EntradaNewton):
+    """Método de Newton-Raphson."""
+    try:
+        return newton(
+            funcao=data.funcao,
+            inicial=data.inicial,
+            criterio=data.criterio,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
-    iteracoes = []
-    i = 0
 
-    while i < 100:
-        fa = calcular_f(f_str, a)
-        fb = calcular_f(f_str, b)
-        media = (a + b) / 2
-        fm = calcular_f(f_str, media)
-
-        # Decide qual extremo substituir
-        if fa * fm > 0:
-            substituiu = "a"
-        else:
-            substituiu = "b"
-
-        iteracoes.append({
-            "iteracao": i,
-            "a": a,
-            "b": b,
-            "media": media,
-            "fa": fa,
-            "fb": fb,
-            "fm": fm,
-            "substituiu": substituiu,
-        })
-
-        # Critério de parada
-        if abs(fm) <= crit:
-            break
-
-        # Atualiza o intervalo após registrar
-        if substituiu == "a":
-            a = media
-        else:
-            b = media
-
-        i += 1
-
-    return {"raiz": media, "iteracoes": iteracoes}
+@app.post("/secante")
+async def endpoint_secante(data: EntradaSecante):
+    """Método da Secante."""
+    try:
+        return secante(
+            funcao=data.funcao,
+            a=data.a,
+            b=data.b,
+            criterio=data.criterio,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @app.post("/jacobi")
-async def calcular_jacobi(data: SistemaInput):
+async def endpoint_jacobi(data: EntradaSistema):
     resultado = jacobi(data.A, data.b, data.chute, data.tolerancia)
     return resultado
 
 
 @app.post("/gauss-seidel")
-async def calcular_gauss(data: SistemaInput):
+async def endpoint_gauss_seidel(data: EntradaSistema):
     resultado = gauss_seidel(data.A, data.b, data.chute, data.tolerancia)
     return resultado
+
+
+# ---------------------------------------------------------------------------
+# Entrypoint
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     import uvicorn
