@@ -37,23 +37,28 @@ app.add_middleware(
 # Schemas de entrada
 # ---------------------------------------------------------------------------
 
-class EntradaMetodoUniDimensional(BaseModel):
+class EntradaBissecao(BaseModel):
     funcao: str
-    criterio: float
-
-
-class EntradaBissecao(EntradaMetodoUniDimensional):
     a: float
     b: float
+    criterio: float  # tolerância de parada
 
 
-class EntradaNewton(EntradaMetodoUniDimensional):
-    inicial: float
+class EntradaNewton(BaseModel):
+    funcao: str
+    x0: float
+    tolerancia: float
+    max_iter: int = 100
+    criterio: str = "absoluto"  # "absoluto" | "relativo" | "funcao"
 
 
-class EntradaSecante(EntradaMetodoUniDimensional):
-    a: float
-    b: float
+class EntradaSecante(BaseModel):
+    funcao: str
+    x0: float
+    x1: float
+    tolerancia: float
+    max_iter: int = 100
+    criterio: str = "absoluto"  # "absoluto" | "relativo" | "funcao"
 
 
 class EntradaSistema(BaseModel):
@@ -87,8 +92,10 @@ async def endpoint_newton(data: EntradaNewton):
     try:
         return newton(
             funcao=data.funcao,
-            inicial=data.inicial,
+            x0=data.x0,
+            tolerancia=data.tolerancia,
             criterio=data.criterio,
+            max_iter=data.max_iter,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -100,9 +107,11 @@ async def endpoint_secante(data: EntradaSecante):
     try:
         return secante(
             funcao=data.funcao,
-            a=data.a,
-            b=data.b,
+            x0=data.x0,
+            x1=data.x1,
+            tolerancia=data.tolerancia,
             criterio=data.criterio,
+            max_iter=data.max_iter,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

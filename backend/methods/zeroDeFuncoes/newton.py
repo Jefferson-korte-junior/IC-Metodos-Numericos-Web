@@ -12,54 +12,70 @@ import sympy as sp
 from .utils import F, parse_funcao, x
 
 
-def newton(funcao: str, inicial: float, criterio: float) -> dict:
+def newton(
+    funcao: str,
+    x0: float,
+    tolerancia: float,
+    criterio: str = "absoluto",
+    max_iter: int = 100,
+) -> dict:
     """
     Encontra raiz de `funcao` pelo método de Newton-Raphson.
 
     Args:
-        funcao:   String da função em x, ex: "x**3 - 2*x - 5"
-        inicial:  Chute inicial x_0.
-        criterio: Tolerância de parada — itera enquanto |f(x_n)| > criterio.
+        funcao:     String da função em x, ex: "x**3 - 2*x - 5"
+        x0:         Chute inicial.
+        tolerancia: Valor de parada para o critério escolhido.
+        criterio:   "absoluto"  → |x_{n+1} - x_n| <= tolerancia
+                    "relativo"  → |x_{n+1} - x_n| / |x_{n+1}| <= tolerancia
+                    "funcao"    → |f(x_n)| <= tolerancia
+        max_iter:   Número máximo de iterações.
 
     Returns:
-        {
-            "raiz":      float,
-            "iteracoes": list[dict],   # histórico completo de cada passo
-        }
+        {"raiz": float, "iteracoes": list[dict]}
 
     Raises:
-        ValueError: Se a derivada for zero (método não aplicável) ou expressão inválida.
+        ValueError: Se a derivada for zero ou a expressão for inválida.
     """
     expr = parse_funcao(funcao)
-
-    # CORREÇÃO CRÍTICA: sp.diff(expr) sem segundo argumento pode derivar pela
-    # variável errada em expressões com múltiplos símbolos, ou falhar silenciosamente.
-    # Sempre especificar a variável explicitamente.
     derivada = sp.diff(expr, x)
 
     iteracoes = []
-    ponto_atual = float(inicial)
+    ponto_atual = float(x0)
 
-    for i in range(100):
-        fx = F(expr, ponto_atual)
-        fdx = float(derivada.evalf(subs={x: ponto_atual}))
+    for i in range(max_iter):
+        fx  = F(expr, ponto_atual)
+        dfx = F(derivada, ponto_atual)
 
-        iteracoes.append({
-            "iteracao": i,
-            "x":        ponto_atual,
-            "fx":       fx,
-            "fdx":      fdx,
-        })
-
-        if abs(fx) <= criterio:
-            break
-
-        if fdx == 0:
+        if dfx == 0:
             raise ValueError(
-                f"Derivada zero em x={ponto_atual:.6g} na iteração {i}. "
+                f"Derivada zero em x={ponto_atual:.6g} na iteração {i + 1}. "
                 "Método de Newton não aplicável neste ponto."
             )
 
-        ponto_atual = ponto_atual - fx / fdx
+        x_novo = ponto_atual - fx / dfx
+
+        if criterio == "relativo":
+            erro = (abs(x_novo - ponto_atual) / abs(x_novo)
+                    if abs(x_novo) > 1e-15
+                    else abs(x_novo - ponto_atual))
+        elif criterio == "funcao":
+            erro = abs(fx)
+        else:  # "absoluto"
+            erro = abs(x_novo - ponto_atual)
+
+        iteracoes.append({
+            "iteracao": i + 1,
+            "x":        ponto_atual,
+            "fx":       fx,
+            "dfx":      dfx,
+            "x_novo":   x_novo,
+            "erro":     erro,
+        })
+
+        ponto_atual = x_novo
+
+        if erro <= tolerancia:
+            break
 
     return {"raiz": float(ponto_atual), "iteracoes": iteracoes}

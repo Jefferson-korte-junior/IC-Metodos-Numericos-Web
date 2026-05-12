@@ -4,6 +4,9 @@ import MainLayout from "./components/layout/MainLayout";
 import TopMenu from "./components/layout/TopMenu";
 import Bissecao from "./pages/Bissecao";
 
+import Newton from "./pages/Newton";
+import Secante from "./pages/Secante";
+
 function App() {
 
   //variavel pra guardar estado da categoria selecionada no menu lateral
@@ -31,7 +34,9 @@ function App() {
       </TopMenu> 
 
       
-      {metodoSelecionado === "Bisseção" && <Bissecao />}  
+      {metodoSelecionado === "Bisseção" && <Bissecao />}
+      {metodoSelecionado === "Newton" && <Newton />}
+      {metodoSelecionado === "Secante" && <Secante />}    
       {metodoSelecionado === "Jacobi" && <h2>Método de Jacobi</h2>}
       {metodoSelecionado === "Gauss-Seidel" && <h2>Método de Gauss-Seidel</h2>} 
 

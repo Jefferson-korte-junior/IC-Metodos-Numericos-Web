@@ -10,56 +10,76 @@ Convergência superlinear (ordem ≈ 1.618).
 from .utils import F, parse_funcao
 
 
-def secante(funcao: str, a: float, b: float, criterio: float) -> dict:
+def secante(
+    funcao: str,
+    x0: float,
+    x1: float,
+    tolerancia: float,
+    criterio: str = "absoluto",
+    max_iter: int = 100,
+) -> dict:
     """
     Encontra raiz de `funcao` pelo método da secante.
 
     Args:
-        funcao:   String da função em x, ex: "cos(x) - x"
-        a:        Primeiro ponto inicial x_0.
-        b:        Segundo ponto inicial x_1.
-        criterio: Tolerância de parada — itera enquanto |f(b)| > criterio.
+        funcao:     String da função em x, ex: "cos(x) - x"
+        x0:         Primeiro ponto inicial.
+        x1:         Segundo ponto inicial.
+        tolerancia: Valor de parada para o critério escolhido.
+        criterio:   "absoluto"  → |x_{n+1} - x_n| <= tolerancia
+                    "relativo"  → |x_{n+1} - x_n| / |x_{n+1}| <= tolerancia
+                    "funcao"    → |f(x_n)| <= tolerancia
+        max_iter:   Número máximo de iterações.
 
     Returns:
-        {
-            "raiz":      float,
-            "iteracoes": list[dict],   # histórico completo de cada passo
-        }
+        {"raiz": float, "iteracoes": list[dict]}
 
     Raises:
-        ValueError: Se f(b) - f(a) = 0 (secante paralela ao eixo x) ou expressão inválida.
+        ValueError: Se f(x_n) - f(x_{n-1}) = 0 ou expressão inválida.
     """
     expr = parse_funcao(funcao)
 
-    fa = F(expr, a)
-    fb = F(expr, b)
+    x_ant = float(x0)
+    x_cur = float(x1)
+    f_ant = F(expr, x_ant)
+    f_cur = F(expr, x_cur)
 
     iteracoes = []
 
-    for i in range(100):
-        iteracoes.append({
-            "iteracao": i,
-            "a":        a,
-            "b":        b,
-            "fa":       fa,
-            "fb":       fb,
-        })
-
-        if abs(fb) <= criterio:
-            break
-
-        denominador = fb - fa
+    for i in range(max_iter):
+        denominador = f_cur - f_ant
         if denominador == 0:
             raise ValueError(
-                f"Divisão por zero na iteração {i}: f(b) - f(a) = 0. "
-                "A secante é paralela ao eixo x — método não convergiu."
+                f"Divisão por zero na iteração {i + 1}: f(x_n) - f(x_{{n-1}}) = 0. "
+                "Método da Secante não convergiu."
             )
 
-        proximo = (a * fb - b * fa) / denominador
+        x_novo = (x_ant * f_cur - x_cur * f_ant) / denominador
+        f_novo = F(expr, x_novo)
 
-        # Desloca a janela: (a, b) → (b, próximo)
-        a, fa = b, fb
-        b = proximo
-        fb = F(expr, b)
+        if criterio == "relativo":
+            erro = (abs(x_novo - x_cur) / abs(x_novo)
+                    if abs(x_novo) > 1e-15
+                    else abs(x_novo - x_cur))
+        elif criterio == "funcao":
+            erro = abs(f_cur)
+        else:  # "absoluto"
+            erro = abs(x_novo - x_cur)
 
-    return {"raiz": float(b), "iteracoes": iteracoes}
+        iteracoes.append({
+            "iteracao":   i + 1,
+            "x_anterior": x_ant,
+            "x":          x_cur,
+            "fx_anterior": f_ant,
+            "fx":         f_cur,
+            "x_novo":     x_novo,
+            "erro":       erro,
+        })
+
+        x_ant, f_ant = x_cur, f_cur
+        x_cur, f_cur = x_novo, f_novo
+
+        if erro <= tolerancia:
+            break
+
+    return {"raiz": float(x_cur), "iteracoes": iteracoes}

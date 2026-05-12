@@ -8,6 +8,7 @@ SEGURANÇA:
 """
 
 import re
+import math
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application
 
@@ -29,6 +30,22 @@ _SAFE_LOCALS: dict = {
     'abs': sp.Abs,
     'pi': sp.pi,
     'e': sp.E,
+}
+
+# Namespace usado pelo eval em F() — só funções matemáticas, sem __builtins__
+_EVAL_NS: dict = {
+    '__builtins__': {},
+    'sin':  math.sin,
+    'cos':  math.cos,
+    'tan':  math.tan,
+    'exp':  math.exp,
+    'log':  math.log,
+    'sqrt': math.sqrt,
+    'Abs':  abs,        # SymPy imprime abs como "Abs"
+    'abs':  abs,
+    'pi':   math.pi,
+    'E':    math.e,     # SymPy imprime a constante de Euler como "E"
+    'e':    math.e,
 }
 
 # Padrão que rejeita qualquer tentativa de acesso a atributos dunder ou chamadas de módulo
@@ -106,5 +123,29 @@ def F(expressao_ou_expr, x_val: float) -> float:
     else:
         expr = expressao_ou_expr
 
-    resultado = expr.evalf(subs={x: x_val})
-    return float(resultado)
+    # Converte a expressão SymPy para string Python e avalia com math puro.
+    # Isso evita completamente o sistema de conversão de tipos do SymPy,
+    # que é incompatível com Python 3.14+.
+    ns = {**_EVAL_NS, 'x': float(x_val)}
+    try:
+        val = eval(str(expr), ns)
+    except Exception as e:
+        raise ValueError(
+            f"Não foi possível avaliar a função em x={x_val}: {e}"
+        )
+
+    if isinstance(val, complex):
+        if abs(val.imag) > 1e-10 * (abs(val.real) + 1):
+            raise ValueError(
+                f"A função retornou um valor complexo em x={x_val}. "
+                "Verifique se a função é real no domínio dado."
+            )
+        val = val.real
+
+    val = float(val)
+    if math.isnan(val) or math.isinf(val):
+        raise ValueError(
+            f"A função retornou {'NaN' if math.isnan(val) else 'infinito'} em x={x_val}. "
+            "Verifique se a função está definida neste ponto."
+        )
+    return val

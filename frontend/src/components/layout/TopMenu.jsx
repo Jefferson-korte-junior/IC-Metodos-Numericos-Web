@@ -3,7 +3,7 @@ import Botao from "../UI/Botao";
 function TopMenu({ categoriaSelecionada, aoSelecionarMetodo, metodoAtivo }) {
 
     const metodosDisponiveis = {
-        "Zero de Funções":   ["Bisseção", "Newton", "secante"],
+        "Zero de Funções":   ["Bisseção", "Newton", "Secante"],
         "Sistemas Lineares": ["Jacobi", "Gauss-Seidel"],
         "Interpolação":      ["Lagrange", "Newton"],
         "Integrais":         ["Trapézio", "Simpson"],
