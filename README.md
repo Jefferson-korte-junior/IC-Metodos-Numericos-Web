@@ -138,4 +138,6 @@ A expressão matemática digitada pelo usuário nunca é executada diretamente. 
 
 ## Autor
 
-Jefferson Nakajima — UTFPR
+Jefferson Korte Junior (Graduando em ciencia da computação) - UTFPR
+Prof Dr Giuvane Conti - UTFPR
+Prof Dr. Evandro Nakajima — UTFPR
