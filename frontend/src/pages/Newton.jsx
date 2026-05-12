@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNewton } from "../hooks/useNewton";
+import NewtonInterativo from "../components/newton/NewtonInterativo";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
   { value: "intermediario", label: "Intermediário"  },
   { value: "completo",      label: "Completo"       },
+  { value: "interativo",    label: "Interativo"     },
 ];
 
 const CRITERIOS = [
@@ -37,19 +39,40 @@ function CampoNumerico({ label, value, onChange, placeholder, step = "any" }) {
 }
 
 export default function Newton() {
-  const [funcao,     setFuncao]     = useState("");
-  const [x0,         setX0]         = useState("");
-  const [tolerancia, setTolerancia] = useState("");
-  const [maxIter,    setMaxIter]    = useState("");
-  const [criterio,   setCriterio]   = useState("absoluto");
-  const [modo,       setModo]       = useState("basico");
+  const [funcao,         setFuncao]         = useState("");
+  const [x0,             setX0]             = useState("");
+  const [tolerancia,     setTolerancia]     = useState("");
+  const [maxIter,        setMaxIter]        = useState("");
+  const [criterio,       setCriterio]       = useState("absoluto");
+  const [modo,           setModo]           = useState("basico");
+  const [erroValidacao,  setErroValidacao]  = useState("");
+  const [chaveInterativo, setChaveInterativo] = useState(0);
 
-  const { calcular, resultado, erro, carregando, limpar } = useNewton();
+  const { calcular, resultado, erro: erroApi, carregando, limpar } = useNewton();
 
-  const handleCalcular = () => {
+  const iteracoes = resultado?.iteracoes ?? [];
+  const raiz      = resultado?.raiz;
+
+  function validarEntrada() {
+    if (!funcao.trim())                          return "Informe a função f(x).";
+    if (x0 === "" || isNaN(parseFloat(x0)))      return "Informe o valor de x₀.";
+    const tol = parseFloat(tolerancia);
+    if (isNaN(tol) || tol <= 0)                  return "Informe uma tolerância válida (ex: 0.0001).";
+    return null;
+  }
+
+  async function handleCalcular() {
     limpar();
-    calcular({ funcao, x0, criterio, tolerancia, maxIter });
-  };
+    setErroValidacao("");
+
+    const msgErro = validarEntrada();
+    if (msgErro) { setErroValidacao(msgErro); return; }
+
+    await calcular({ funcao, x0, criterio, tolerancia, maxIter });
+    setChaveInterativo((k) => k + 1);
+  }
+
+  const erroExibido = erroValidacao || erroApi;
 
   return (
     <div style={{ padding: 24, margin: "0 auto", fontFamily: "sans-serif" }}>
@@ -164,7 +187,7 @@ export default function Newton() {
                 name="modoNewton"
                 value={value}
                 checked={modo === value}
-                onChange={(e) => { setModo(e.target.value); limpar(); }}
+                onChange={(e) => { setModo(e.target.value); limpar(); setErroValidacao(""); }}
                 style={{ accentColor: "#3c3489", margin: 0 }}
               />
               {label}
@@ -174,18 +197,32 @@ export default function Newton() {
       </div>
 
       {/* Erro */}
-      {erro && (
+      {erroExibido && (
         <div style={{
           marginBottom: 16, padding: "10px 14px", borderRadius: 8,
           background: "#fff0f0", border: "1px solid #f5c2c2",
           color: "#a00", fontSize: 13, maxWidth: 640,
         }}>
-          {erro}
+          {erroExibido}
         </div>
       )}
 
-      {/* Resultado */}
-      {resultado && <ResultadoNewton resultado={resultado} modo={modo} />}
+      {/* Resultado — modos Básico / Intermediário / Completo */}
+      {resultado && modo !== "interativo" && (
+        <ResultadoNewton resultado={resultado} modo={modo} />
+      )}
+
+      {/* Resultado — modo Interativo */}
+      {iteracoes.length > 0 && modo === "interativo" && (
+        <NewtonInterativo
+          key={chaveInterativo}
+          funcao={funcao}
+          x0={parseFloat(x0)}
+          criterio={criterio}
+          tolerancia={parseFloat(tolerancia)}
+          iteracoesBackend={iteracoes}
+        />
+      )}
     </div>
   );
 }

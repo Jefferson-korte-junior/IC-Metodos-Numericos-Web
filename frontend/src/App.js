@@ -6,6 +6,9 @@ import Bissecao from "./pages/Bissecao";
 
 import Newton from "./pages/Newton";
 import Secante from "./pages/Secante";
+import Jacobi from "./pages/Jacobi";
+import GaussSeidel from "./pages/GaussSeidel";
+import Lagrange from "./pages/Lagrange";
 
 function App() {
 
@@ -37,8 +40,9 @@ function App() {
       {metodoSelecionado === "Bisseção" && <Bissecao />}
       {metodoSelecionado === "Newton" && <Newton />}
       {metodoSelecionado === "Secante" && <Secante />}    
-      {metodoSelecionado === "Jacobi" && <h2>Método de Jacobi</h2>}
-      {metodoSelecionado === "Gauss-Seidel" && <h2>Método de Gauss-Seidel</h2>} 
+      {metodoSelecionado === "Jacobi" && <Jacobi />}
+      {metodoSelecionado === "Gauss-Seidel" && <GaussSeidel />}
+      {metodoSelecionado === "Lagrange" && <Lagrange />}
 
     </MainLayout>
 

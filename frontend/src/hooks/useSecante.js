@@ -27,7 +27,12 @@ export function useSecante() {
       const data = await response.json();
 
       if (!response.ok) {
-        setErro(data.detail || "Erro ao calcular pelo método da Secante.");
+        const detalhe = typeof data.detail === "string"
+          ? data.detail
+          : Array.isArray(data.detail)
+            ? data.detail.map(e => e.msg || JSON.stringify(e)).join("; ")
+            : "Erro ao calcular pelo método da Secante.";
+        setErro(detalhe);
         return;
       }
 

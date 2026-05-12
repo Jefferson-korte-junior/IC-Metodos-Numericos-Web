@@ -22,6 +22,7 @@ from methods.zeroDeFuncoes.newton import newton
 from methods.zeroDeFuncoes.secante import secante
 from methods.sistemasLineares.jacobi import jacobi
 from methods.sistemasLineares.gauss_seidel import gauss_seidel
+from methods.interpolacao.lagrange import lagrange
 
 app = FastAPI(title="IC — API de Métodos Numéricos")
 
@@ -66,6 +67,11 @@ class EntradaSistema(BaseModel):
     b: list
     chute: list
     tolerancia: float
+
+
+class EntradaLagrange(BaseModel):
+    pontos: list   # list of [x, y] pairs
+    x_eval: float
 
 
 # ---------------------------------------------------------------------------
@@ -127,6 +133,15 @@ async def endpoint_jacobi(data: EntradaSistema):
 async def endpoint_gauss_seidel(data: EntradaSistema):
     resultado = gauss_seidel(data.A, data.b, data.chute, data.tolerancia)
     return resultado
+
+
+@app.post("/lagrange")
+async def endpoint_lagrange(data: EntradaLagrange):
+    """Interpolação de Lagrange."""
+    try:
+        return lagrange(data.pontos, data.x_eval)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 # ---------------------------------------------------------------------------
