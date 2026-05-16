@@ -12,7 +12,7 @@
  *   Error com .message descritivo (vindo do backend ou de rede)
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "https://ic-metodos-numericos-web.onrender.com";
 
 // ─── Helper interno ──────────────────────────────────────────────────────────
 
