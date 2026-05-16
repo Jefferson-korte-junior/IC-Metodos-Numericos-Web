@@ -28,7 +28,10 @@ app = FastAPI(title="IC — API de Métodos Numéricos")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # Em produção: restringir para o domínio do frontend
+    allow_origins=[
+        "http://localhost:3000",
+        "https://jefferson-korte-junior.github.io",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
