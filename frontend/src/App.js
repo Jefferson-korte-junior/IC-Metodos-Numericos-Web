@@ -1,53 +1,40 @@
-import {useState} from "react"; //essa importaçao do react nos permite usar estados nos componentes, quando o valor for atualizado  faz o componente ser renderizado novamente.
+import { useState } from "react";
 
 import MainLayout from "./components/layout/MainLayout";
-import TopMenu from "./components/layout/TopMenu";
-import Bissecao from "./pages/Bissecao";
+import Header    from "./components/layout/Header";
+import TopMenu   from "./components/layout/TopMenu";
 
-import Newton from "./pages/Newton";
-import Secante from "./pages/Secante";
-import Jacobi from "./pages/Jacobi";
+import Bissecao   from "./pages/Bissecao";
+import Newton     from "./pages/Newton";
+import Secante    from "./pages/Secante";
+import Jacobi     from "./pages/Jacobi";
 import GaussSeidel from "./pages/GaussSeidel";
-import Lagrange from "./pages/Lagrange";
+import Lagrange   from "./pages/Lagrange";
 
 function App() {
-
-  //variavel pra guardar estado da categoria selecionada no menu lateral
-  //Funçao pra mudar o valor
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null); //Ele me retorna um array com [valor, função].
-
-  const [metodoSelecionado, setMetodoSelecionado] = useState(null);
-
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+  const [metodoSelecionado,    setMetodoSelecionado]    = useState(null);
 
   return (
-
-    <MainLayout aoSelecionarcategoria={setCategoriaSelecionada}> 
-    
-      
-      <h1>Projeto IC - Métodos Numéricos</h1>
-      <p>Bem-vindo ao nosso aplicativo de Métodos Numéricos!</p>
-
-      <p>Categoria Selecionada pelo usuario {categoriaSelecionada}</p>
+    <MainLayout
+      aoSelecionarcategoria={setCategoriaSelecionada}
+      categoriaSelecionada={categoriaSelecionada}
+    >
+      <Header categoriaSelecionada={categoriaSelecionada} />
 
       <TopMenu
-        aoSelecionarMetodo={setMetodoSelecionado} 
+        aoSelecionarMetodo={setMetodoSelecionado}
         categoriaSelecionada={categoriaSelecionada}
-        metodoAtivo={metodoSelecionado}>
+        metodoAtivo={metodoSelecionado}
+      />
 
-      </TopMenu> 
-
-      
-      {metodoSelecionado === "Bisseção" && <Bissecao />}
-      {metodoSelecionado === "Newton" && <Newton />}
-      {metodoSelecionado === "Secante" && <Secante />}    
-      {metodoSelecionado === "Jacobi" && <Jacobi />}
+      {metodoSelecionado === "Bisseção"    && <Bissecao />}
+      {metodoSelecionado === "Newton"      && <Newton />}
+      {metodoSelecionado === "Secante"     && <Secante />}
+      {metodoSelecionado === "Jacobi"      && <Jacobi />}
       {metodoSelecionado === "Gauss-Seidel" && <GaussSeidel />}
-      {metodoSelecionado === "Lagrange" && <Lagrange />}
-
+      {metodoSelecionado === "Lagrange"    && <Lagrange />}
     </MainLayout>
-
-    //Aqui se o metodo selecionado for igual a Bissecao, ele vai renderizar oque esta dentro do arquivo bissecao.jsx
-
   );
 }
 
