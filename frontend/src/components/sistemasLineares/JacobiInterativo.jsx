@@ -62,7 +62,7 @@ const T = {
   shadow:       "0 1px 3px rgba(0,0,0,0.07)",
 };
 
-// ── Calculadora ───────────────────────────────────────────────────────────────
+// ── Calculadora (científica completa) ─────────────────────────────────────────
 function Calculadora() {
   const [display, setDisplay] = useState("0");
   const [expr, setExpr] = useState("");
@@ -75,11 +75,25 @@ function Calculadora() {
       setDisplay(display === "0" && d !== "." ? d : display + d);
     }
   }
-  function pressOp(op) { setExpr(display + " " + op + " "); setNewNum(true); }
+  function pressOp(op) {
+    const lhs = newNum ? expr : expr + display + " ";
+    setExpr(lhs + op + " "); setNewNum(true);
+  }
+  function pressLParen() {
+    if (!newNum && display !== "0") { setExpr(expr + display + " * ("); }
+    else { setExpr(expr + "("); }
+    setDisplay("0"); setNewNum(true);
+  }
+  function pressRParen() {
+    setExpr(expr + (newNum ? "" : display) + ")");
+    if (!newNum) setDisplay("0");
+    setNewNum(true);
+  }
   function calcular() {
     try {
+      const fullExpr = (newNum ? expr : expr + display).trim();
       // eslint-disable-next-line no-new-func
-      const res = Function(`return (${expr + display})`)();
+      const res = Function(`return (${fullExpr || display})`)();
       setDisplay(isFinite(res) ? String(parseFloat(res.toFixed(12))) : "Erro");
       setExpr(""); setNewNum(true);
     } catch { setDisplay("Erro"); setExpr(""); setNewNum(true); }
@@ -88,17 +102,23 @@ function Calculadora() {
     try {
       const v = parseFloat(display); let res;
       const DEG = Math.PI / 180;
-      if (fn === "√")   res = Math.sqrt(v);
-      else if (fn === "x²") res = v * v;
-      else if (fn === "1/x") res = 1 / v;
-      else if (fn === "±")  res = -v;
-      else if (fn === "π") { setDisplay(String(Math.PI)); setNewNum(true); return; }
+      if      (fn === "sin")  res = Math.sin(v * DEG);
+      else if (fn === "cos")  res = Math.cos(v * DEG);
+      else if (fn === "tan")  res = Math.tan(v * DEG);
+      else if (fn === "√")    res = Math.sqrt(v);
+      else if (fn === "log")  res = Math.log10(v);
+      else if (fn === "ln")   res = Math.log(v);
+      else if (fn === "x²")   res = v * v;
+      else if (fn === "1/x")  res = 1 / v;
+      else if (fn === "±")    res = -v;
+      else if (fn === "π")  { setDisplay(String(Math.PI)); setNewNum(true); return; }
+      else if (fn === "e")  { setDisplay(String(Math.E));  setNewNum(true); return; }
       else return;
       setDisplay(isFinite(res) ? String(parseFloat(res.toFixed(12))) : "Erro");
       setNewNum(true);
     } catch { setDisplay("Erro"); setNewNum(true); }
   }
-  function limpar() { setDisplay("0"); setExpr(""); setNewNum(true); }
+  function limpar()    { setDisplay("0"); setExpr(""); setNewNum(true); }
   function backspace() {
     if (newNum || display.length <= 1) { setDisplay("0"); setNewNum(true); }
     else setDisplay(display.slice(0, -1) || "0");
@@ -117,29 +137,40 @@ function Calculadora() {
         <div style={{ fontSize:display.length>14?13:display.length>10?16:22, fontWeight:700, color:T.text, fontFamily:T.font, wordBreak:"break-all" }}>{display}</div>
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:4 }}>
+        <Btn label="sin" onClick={() => pressFunc("sin")} theme="fn" />
+        <Btn label="cos" onClick={() => pressFunc("cos")} theme="fn" />
+        <Btn label="tan" onClick={() => pressFunc("tan")} theme="fn" />
         <Btn label="√"   onClick={() => pressFunc("√")}   theme="fn" />
+        <Btn label="log" onClick={() => pressFunc("log")} theme="fn" />
+        <Btn label="ln"  onClick={() => pressFunc("ln")}  theme="fn" />
         <Btn label="x²"  onClick={() => pressFunc("x²")}  theme="fn" />
         <Btn label="1/x" onClick={() => pressFunc("1/x")} theme="fn" />
-        <Btn label="±"   onClick={() => pressFunc("±")}   theme="fn" />
         <Btn label="π"   onClick={() => pressFunc("π")}   theme="fn" />
-        <Btn label="C"   onClick={limpar}                 theme="del" />
+        <Btn label="e"   onClick={() => pressFunc("e")}   theme="fn" />
+        <Btn label="±"   onClick={() => pressFunc("±")}   theme="fn" />
         <Btn label="⌫"   onClick={backspace}              theme="del" />
+        <Btn label="C"   onClick={limpar}                 theme="del" />
+        <Btn label="("   onClick={pressLParen}            theme="op" />
+        <Btn label=")"   onClick={pressRParen}            theme="op" />
         <Btn label="÷"   onClick={() => pressOp("/")}     theme="op" />
         <Btn label="7"   onClick={() => pressDigit("7")} />
         <Btn label="8"   onClick={() => pressDigit("8")} />
         <Btn label="9"   onClick={() => pressDigit("9")} />
-        <Btn label="×"   onClick={() => pressOp("*")}    theme="op" />
+        <Btn label="×"   onClick={() => pressOp("*")}     theme="op" />
         <Btn label="4"   onClick={() => pressDigit("4")} />
         <Btn label="5"   onClick={() => pressDigit("5")} />
         <Btn label="6"   onClick={() => pressDigit("6")} />
-        <Btn label="−"   onClick={() => pressOp("-")}    theme="op" />
+        <Btn label="−"   onClick={() => pressOp("-")}     theme="op" />
         <Btn label="1"   onClick={() => pressDigit("1")} />
         <Btn label="2"   onClick={() => pressDigit("2")} />
         <Btn label="3"   onClick={() => pressDigit("3")} />
-        <Btn label="+"   onClick={() => pressOp("+")}    theme="op" />
-        <Btn label="0"   onClick={() => pressDigit("0")} wide />
+        <Btn label="+"   onClick={() => pressOp("+")}     theme="op" />
+        <Btn label="0"   onClick={() => pressDigit("0")}  wide />
         <Btn label="."   onClick={() => pressDigit(".")} />
-        <Btn label="="   onClick={calcular}              theme="eq" />
+        <Btn label="="   onClick={calcular}               theme="eq" />
+      </div>
+      <div style={{ marginTop:8, fontSize:10, color:T.textFaint, fontFamily:T.fontSans, textAlign:"center" }}>
+        sin/cos/tan em graus (DEG)
       </div>
     </div>
   );
@@ -256,6 +287,38 @@ function PainelEstadoSistema({ fase, subIdx, respondido, metodo }) {
   );
 }
 
+// ── Calcula o resíduo (critério de parada do backend) ────────────────────────
+// Replicamos aqui a lógica de utils.py: Σ|bᵢ − Σ(Aᵢⱼ × xⱼ)|
+function calcularResiduo(A, b, x) {
+  let soma = 0;
+  for (let i = 0; i < A.length; i++) {
+    let res = b[i];
+    for (let j = 0; j < A[i].length; j++) res -= A[i][j] * x[j];
+    soma += Math.abs(res);
+  }
+  return soma;
+}
+
+// ── Dica detalhada para o passo de erro ──────────────────────────────────────
+function buildDicaErro(A, b, x, erroTotal) {
+  const n = A.length;
+  const linhas = [];
+  for (let i = 0; i < n; i++) {
+    let val = b[i];
+    let expr = `|${fmt(b[i], 4)}`;
+    for (let j = 0; j < n; j++) {
+      const c = A[i][j];
+      const sinal = c >= 0 ? " − " : " + ";
+      expr += `${sinal}(${fmt(Math.abs(c), 4)})×(${fmt(x[j], 6)})`;
+      val -= c * x[j];
+    }
+    expr += `| = ${fmtS(Math.abs(val), 6)}`;
+    linhas.push(`Linha ${i + 1}: ${expr}`);
+  }
+  linhas.push(`\nErro total = ${fmtS(erroTotal, 6)}`);
+  return linhas.join("\n");
+}
+
 // ── Constrói a fórmula substituída para Jacobi ───────────────────────────────
 function buildFormula(A, b, xPrev, i) {
   const n = A.length;
@@ -293,12 +356,13 @@ function buildDica(A, b, xPrev, i, xNovo) {
 }
 
 // ── Construção dos passos didáticos (Jacobi) ──────────────────────────────────
-function construirPassos(A, b, chute, iteracoesBackend) {
+function construirPassos(A, b, chute, tolerancia, iteracoesBackend) {
   const n = A.length;
   return iteracoesBackend.map((it, k) => {
     const xPrev = k === 0 ? [...chute] : [...iteracoesBackend[k - 1].valores];
 
-    const subpassos = it.valores.map((xNovo, i) => ({
+    // ── Subpassos das variáveis ───────────────────────────────────────────────
+    const subpassosVars = it.valores.map((xNovo, i) => ({
       id: `k${k}_x${i}`,
       perguntaTexto: `x${SUB[i]}^(${k + 1})`,
       pergunta: `Calcule x${SUB[i]}^(${k + 1}) = ${buildFormula(A, b, xPrev, i)}`,
@@ -312,6 +376,41 @@ function construirPassos(A, b, chute, iteracoesBackend) {
           : null,
     }));
 
+    // ── Subpassos do erro (resíduo) ───────────────────────────────────────────
+    const erroEsperado   = calcularResiduo(A, b, it.valores);
+    const convergeAgora  = erroEsperado < tolerancia;
+
+    const subpassosErro = [
+      {
+        id: `k${k}_erro`,
+        perguntaTexto: `erro^(${k + 1})`,
+        pergunta:
+          `Calcule o erro (resíduo) ao final da iteração ${k + 1}:\n` +
+          `erro = Σ |bᵢ − Σ(Aᵢⱼ × xⱼ^(${k + 1}))|`,
+        dica: buildDicaErro(A, b, it.valores, erroEsperado),
+        esperado: erroEsperado,
+        tipo: "numero",
+        contextoSubpasso:
+          `Este é o critério de parada do Jacobi. Se erro < ε = ${tolerancia}, o método converge.`,
+      },
+      {
+        id: `k${k}_converge`,
+        perguntaTexto: `erro < ε?`,
+        pergunta:
+          `O erro ${fmtS(erroEsperado, 6)} é menor que ε = ${tolerancia}?`,
+        dica:
+          `${fmtS(erroEsperado, 6)} ${convergeAgora ? "<" : "≥"} ${tolerancia} → ` +
+          (convergeAgora
+            ? "Sim — o método converge! Iterações encerradas."
+            : "Não — continuar para a próxima iteração."),
+        esperado: convergeAgora ? "Sim" : "Não",
+        tipo: "simnao",
+        contextoSubpasso: convergeAgora
+          ? "Como erro < ε, a solução está dentro da tolerância desejada e o processo para."
+          : "Como erro ≥ ε, o processo continua para a próxima iteração.",
+      },
+    ];
+
     return {
       faseLabel: `Iteração ${k + 1}`,
       subtitulo: `Iteração ${k + 1}`,
@@ -322,7 +421,7 @@ function construirPassos(A, b, chute, iteracoesBackend) {
         titulo: `Valores da iteração ${k} usados (x^(${k}))`,
         texto: xPrev.map((v, i) => `x${SUB[i]} = ${fmtS(v, 6)}`).join("   "),
       }],
-      subpassos,
+      subpassos: [...subpassosVars, ...subpassosErro],
     };
   });
 }
@@ -330,7 +429,7 @@ function construirPassos(A, b, chute, iteracoesBackend) {
 // ── Componente principal ──────────────────────────────────────────────────────
 export default function JacobiInterativo({ A, b, chute, tolerancia, iteracoesBackend = [] }) {
   const passos = useRef(null);
-  if (!passos.current) passos.current = construirPassos(A, b, chute, iteracoesBackend);
+  if (!passos.current) passos.current = construirPassos(A, b, chute, tolerancia, iteracoesBackend);
 
   const [faseIdx,    setFaseIdx]    = useState(0);
   const [subIdx,     setSubIdx]     = useState(0);
@@ -358,11 +457,23 @@ export default function JacobiInterativo({ A, b, chute, tolerancia, iteracoesBac
 
   function confirmar(val) {
     const v = val !== undefined ? val : inputVal;
-    const ok = checar(v, subpasso.esperado);
+    let ok;
+    if (subpasso.tipo === "simnao") {
+      // Vem de um clique de botão — comparação direta
+      ok = (v === subpasso.esperado);
+    } else {
+      ok = checar(v, subpasso.esperado);
+    }
     setFeedback({ ok });
     if (ok) {
       setRespondido(true); setTentativas(0);
-      setHistorico(h => [...h, { faseLabel: fase.faseLabel, perguntaTexto: subpasso.perguntaTexto, resposta: fmtS(subpasso.esperado, 6) }]);
+      const respostaExibida =
+        subpasso.tipo === "simnao" ? subpasso.esperado : fmtS(subpasso.esperado, 6);
+      setHistorico(h => [...h, {
+        faseLabel: fase.faseLabel,
+        perguntaTexto: subpasso.perguntaTexto,
+        resposta: respostaExibida,
+      }]);
     } else {
       setTentativas(t => t + 1);
     }
@@ -469,16 +580,32 @@ export default function JacobiInterativo({ A, b, chute, tolerancia, iteracoesBac
                 )}
 
                 {!respondido && (
-                  <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-                    <input type="text" value={inputVal} onChange={e => setInputVal(e.target.value)}
-                      onKeyDown={e => { if (e.key === "Enter") confirmar(); }}
-                      placeholder="Sua resposta numérica" autoFocus
-                      style={{ flex:1, maxWidth:260, background:T.bgSection, border:`1.5px solid ${T.borderMed}`, borderRadius:T.radiusSm, color:T.text, fontSize:16, fontFamily:T.font, padding:"10px 14px" }}
-                    />
-                    <button onClick={() => confirmar()} style={{ background:T.primary, color:"#fff", border:"none", borderRadius:T.radiusSm, padding:"10px 22px", fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:T.fontSans }}>
-                      Confirmar
-                    </button>
-                  </div>
+                  subpasso.tipo === "simnao" ? (
+                    <div style={{ display:"flex", gap:10 }}>
+                      {["Sim", "Não"].map(op => (
+                        <button key={op} onClick={() => confirmar(op)} style={{
+                          background: op === "Sim" ? T.greenLight : T.redLight,
+                          color:      op === "Sim" ? T.green      : T.red,
+                          border:    `1.5px solid ${op === "Sim" ? T.greenBorder : T.redBorder}`,
+                          borderRadius: T.radiusSm, padding:"10px 36px",
+                          fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:T.fontSans,
+                        }}>
+                          {op}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+                      <input type="text" value={inputVal} onChange={e => setInputVal(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") confirmar(); }}
+                        placeholder="Sua resposta numérica" autoFocus
+                        style={{ flex:1, maxWidth:260, background:T.bgSection, border:`1.5px solid ${T.borderMed}`, borderRadius:T.radiusSm, color:T.text, fontSize:16, fontFamily:T.font, padding:"10px 14px" }}
+                      />
+                      <button onClick={() => confirmar()} style={{ background:T.primary, color:"#fff", border:"none", borderRadius:T.radiusSm, padding:"10px 22px", fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:T.fontSans }}>
+                        Confirmar
+                      </button>
+                    </div>
+                  )
                 )}
 
                 {respondido && (

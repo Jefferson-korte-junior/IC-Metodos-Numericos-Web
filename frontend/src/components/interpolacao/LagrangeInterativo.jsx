@@ -69,7 +69,7 @@ const T = {
   shadow:       "0 1px 3px rgba(0,0,0,0.07)",
 };
 
-// ── Calculadora ───────────────────────────────────────────────────────────────
+// ── Calculadora (científica completa) ─────────────────────────────────────────
 function Calculadora() {
   const [display, setDisplay] = useState("0");
   const [expr, setExpr] = useState("");
@@ -82,11 +82,25 @@ function Calculadora() {
       setDisplay(display === "0" && d !== "." ? d : display + d);
     }
   }
-  function pressOp(op) { setExpr(display + " " + op + " "); setNewNum(true); }
+  function pressOp(op) {
+    const lhs = newNum ? expr : expr + display + " ";
+    setExpr(lhs + op + " "); setNewNum(true);
+  }
+  function pressLParen() {
+    if (!newNum && display !== "0") { setExpr(expr + display + " * ("); }
+    else { setExpr(expr + "("); }
+    setDisplay("0"); setNewNum(true);
+  }
+  function pressRParen() {
+    setExpr(expr + (newNum ? "" : display) + ")");
+    if (!newNum) setDisplay("0");
+    setNewNum(true);
+  }
   function calcular() {
     try {
+      const fullExpr = (newNum ? expr : expr + display).trim();
       // eslint-disable-next-line no-new-func
-      const res = Function(`return (${expr + display})`)();
+      const res = Function(`return (${fullExpr || display})`)();
       setDisplay(isFinite(res) ? String(parseFloat(res.toFixed(12))) : "Erro");
       setExpr(""); setNewNum(true);
     } catch { setDisplay("Erro"); setExpr(""); setNewNum(true); }
@@ -94,11 +108,18 @@ function Calculadora() {
   function pressFunc(fn) {
     try {
       const v = parseFloat(display); let res;
-      if (fn === "√")    res = Math.sqrt(v);
-      else if (fn === "x²")  res = v * v;
-      else if (fn === "1/x") res = 1 / v;
-      else if (fn === "±")   res = -v;
-      else if (fn === "π") { setDisplay(String(Math.PI)); setNewNum(true); return; }
+      const DEG = Math.PI / 180;
+      if      (fn === "sin")  res = Math.sin(v * DEG);
+      else if (fn === "cos")  res = Math.cos(v * DEG);
+      else if (fn === "tan")  res = Math.tan(v * DEG);
+      else if (fn === "√")    res = Math.sqrt(v);
+      else if (fn === "log")  res = Math.log10(v);
+      else if (fn === "ln")   res = Math.log(v);
+      else if (fn === "x²")   res = v * v;
+      else if (fn === "1/x")  res = 1 / v;
+      else if (fn === "±")    res = -v;
+      else if (fn === "π")  { setDisplay(String(Math.PI)); setNewNum(true); return; }
+      else if (fn === "e")  { setDisplay(String(Math.E));  setNewNum(true); return; }
       else return;
       setDisplay(isFinite(res) ? String(parseFloat(res.toFixed(12))) : "Erro");
       setNewNum(true);
@@ -133,29 +154,40 @@ function Calculadora() {
         <div style={{ fontSize:display.length>14?13:display.length>10?16:22, fontWeight:700, color:T.text, fontFamily:T.font, wordBreak:"break-all" }}>{display}</div>
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:4 }}>
+        <Btn label="sin" onClick={() => pressFunc("sin")} theme="fn" />
+        <Btn label="cos" onClick={() => pressFunc("cos")} theme="fn" />
+        <Btn label="tan" onClick={() => pressFunc("tan")} theme="fn" />
         <Btn label="√"   onClick={() => pressFunc("√")}   theme="fn" />
+        <Btn label="log" onClick={() => pressFunc("log")} theme="fn" />
+        <Btn label="ln"  onClick={() => pressFunc("ln")}  theme="fn" />
         <Btn label="x²"  onClick={() => pressFunc("x²")}  theme="fn" />
         <Btn label="1/x" onClick={() => pressFunc("1/x")} theme="fn" />
-        <Btn label="±"   onClick={() => pressFunc("±")}   theme="fn" />
         <Btn label="π"   onClick={() => pressFunc("π")}   theme="fn" />
-        <Btn label="C"   onClick={limpar}                 theme="del" />
+        <Btn label="e"   onClick={() => pressFunc("e")}   theme="fn" />
+        <Btn label="±"   onClick={() => pressFunc("±")}   theme="fn" />
         <Btn label="⌫"   onClick={backspace}              theme="del" />
+        <Btn label="C"   onClick={limpar}                 theme="del" />
+        <Btn label="("   onClick={pressLParen}            theme="op" />
+        <Btn label=")"   onClick={pressRParen}            theme="op" />
         <Btn label="÷"   onClick={() => pressOp("/")}     theme="op" />
         <Btn label="7"   onClick={() => pressDigit("7")} />
         <Btn label="8"   onClick={() => pressDigit("8")} />
         <Btn label="9"   onClick={() => pressDigit("9")} />
-        <Btn label="×"   onClick={() => pressOp("*")}    theme="op" />
+        <Btn label="×"   onClick={() => pressOp("*")}     theme="op" />
         <Btn label="4"   onClick={() => pressDigit("4")} />
         <Btn label="5"   onClick={() => pressDigit("5")} />
         <Btn label="6"   onClick={() => pressDigit("6")} />
-        <Btn label="−"   onClick={() => pressOp("-")}    theme="op" />
+        <Btn label="−"   onClick={() => pressOp("-")}     theme="op" />
         <Btn label="1"   onClick={() => pressDigit("1")} />
         <Btn label="2"   onClick={() => pressDigit("2")} />
         <Btn label="3"   onClick={() => pressDigit("3")} />
-        <Btn label="+"   onClick={() => pressOp("+")}    theme="op" />
-        <Btn label="0"   onClick={() => pressDigit("0")} wide />
+        <Btn label="+"   onClick={() => pressOp("+")}     theme="op" />
+        <Btn label="0"   onClick={() => pressDigit("0")}  wide />
         <Btn label="."   onClick={() => pressDigit(".")} />
-        <Btn label="="   onClick={calcular}              theme="eq" />
+        <Btn label="="   onClick={calcular}               theme="eq" />
+      </div>
+      <div style={{ marginTop:8, fontSize:10, color:T.textFaint, fontFamily:T.fontSans, textAlign:"center" }}>
+        sin/cos/tan em graus (DEG)
       </div>
     </div>
   );

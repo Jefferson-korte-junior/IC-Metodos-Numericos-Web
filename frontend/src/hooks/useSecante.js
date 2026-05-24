@@ -1,60 +1,29 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { calcularSecante } from "../api/metodosNumericos";
 
 export function useSecante() {
-  const [resultado, setResultado] = useState(null);
-  const [erro, setErro] = useState(null);
+  const [resultado,  setResultado]  = useState(null);
+  const [erro,       setErro]       = useState(null);
   const [carregando, setCarregando] = useState(false);
 
-  const calcular = async ({ funcao, x0, x1, criterio, tolerancia, maxIter }) => {
+  const calcular = useCallback(async (params) => {
     setCarregando(true);
     setErro(null);
     setResultado(null);
-
     try {
-      const response = await fetch("http://localhost:8000/secante", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          funcao,
-          x0: parseFloat(x0),
-          x1: parseFloat(x1),
-          criterio,
-          tolerancia: parseFloat(tolerancia),
-          max_iter: parseInt(maxIter),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        const detalhe = typeof data.detail === "string"
-          ? data.detail
-          : Array.isArray(data.detail)
-            ? data.detail.map(e => e.msg || JSON.stringify(e)).join("; ")
-            : "Erro ao calcular pelo método da Secante.";
-        setErro(detalhe);
-        return;
-      }
-
-      if (data.erro) {
-        setErro(data.erro);
-        return;
-      }
-
+      const data = await calcularSecante(params);
       setResultado(data);
     } catch (err) {
-      setErro(
-        "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
-      );
+      setErro(err.message);
     } finally {
       setCarregando(false);
     }
-  };
+  }, []);
 
-  const limpar = () => {
+  const limpar = useCallback(() => {
     setResultado(null);
     setErro(null);
-  };
+  }, []);
 
   return { calcular, resultado, erro, carregando, limpar };
 }

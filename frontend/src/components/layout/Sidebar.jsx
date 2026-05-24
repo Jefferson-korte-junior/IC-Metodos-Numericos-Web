@@ -156,14 +156,39 @@ function Sidebar({ aoSelecionarcategoria, categoriaSelecionada }) {
         alignItems: "center",
         gap: 10,
       }}>
-        {/* Marca geométrica da UTFPR */}
-        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="https://www.bing.com/images/search?view=detailV2&ccid=RIghS0cI&id=D5A009D23C4D532A70E647A1282C3B9D7ACBE8FA&thid=OIP.RIghS0cIyk_O-n25oEDUmQHaFy&mediaurl=https%3a%2f%2fprojeto-cdn.infra.grancursosonline.com.br%2funiversidade-tecnologica-federal-do-parana.png&cdnurl=https%3a%2f%2fth.bing.com%2fth%2fid%2fR.4488214b4708ca4fcefa7db9a040d499%3frik%3d%252bujLep07LCihRw%26pid%3dImgRaw%26r%3d0&exph=774&expw=990&q=Simbolo+UTFPR&FORM=IRPRST&ck=E4EE5EF6486FAB04479159D46EBBCC4E&selectedIndex=0&itb=0&ajaxhist=0&ajaxserp=0" style={{ flexShrink: 0 }}>
-          {/* Quadrado externo */}
-          <rect x="2" y="2" width="36" height="36" rx="4" stroke="#5c54c8" strokeWidth="2" fill="none" opacity="0.6" />
-          {/* Letra U estilizada */}
-          <path d="M10 12 L10 24 Q10 30 20 30 Q30 30 30 24 L30 12" stroke="#a09af0" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Barra superior do U */}
-          <line x1="10" y1="12" x2="30" y2="12" stroke="#a09af0" strokeWidth="2.5" strokeLinecap="round" opacity="0.5"/>
+        {/*
+          Logo UTFPR — SVG embutido baseado na identidade visual oficial.
+          Para usar o PNG oficial: salve o arquivo em public/utfpr-logo.png e
+          substitua este SVG por:
+            <img
+              src={`${process.env.PUBLIC_URL}/utfpr-logo.png`}
+              alt="UTFPR"
+              style={{ width: 38, height: 38, objectFit: "contain", flexShrink: 0 }}
+            />
+        */}
+        <svg
+          width="38" height="38"
+          viewBox="0 0 38 38"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ flexShrink: 0 }}
+        >
+          {/* Fundo azul UTFPR */}
+          <rect width="38" height="38" rx="6" fill="#005FAA" />
+
+          {/* Símbolo: coluna esquerda do U */}
+          <rect x="7"  y="7" width="6" height="17" rx="1.5" fill="white" />
+          {/* Símbolo: coluna direita do U */}
+          <rect x="25" y="7" width="6" height="17" rx="1.5" fill="white" />
+          {/* Símbolo: arco inferior do U */}
+          <path
+            d="M7 21 C7 32 31 32 31 21"
+            stroke="white" strokeWidth="6" strokeLinecap="round" fill="none"
+          />
+          {/* Barra horizontal superior (traço da marca UTFPR) */}
+          <rect x="7" y="7" width="24" height="4" rx="1.5" fill="white" opacity="0.45" />
+          {/* Estrela/ponto central decorativo */}
+          <circle cx="19" cy="22" r="2" fill="#005FAA" />
         </svg>
 
         <div>
