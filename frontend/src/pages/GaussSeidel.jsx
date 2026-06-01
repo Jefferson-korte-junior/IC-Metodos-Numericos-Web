@@ -9,10 +9,23 @@ const MODOS = [
   { value: "interativo",    label: "Interativo"     },
 ];
 
-const SUB = ["₁","₂","₃","₄","₅"];
+const SUB = ["₁","₂","₃","₄","₅","₆","₇","₈","₉","₁₀"];
 
 function gerarMatriz(n) { return Array.from({ length: n }, () => Array(n).fill("")); }
 function gerarVetor(n)  { return Array(n).fill(""); }
+
+function gerarExemplo(n) {
+  const A = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => {
+      if (i === j)               return String(2 * n);
+      if (Math.abs(i - j) === 1) return "-1";
+      return "0";
+    })
+  );
+  const b  = A.map(row => String(row.reduce((s, v) => s + parseFloat(v), 0)));
+  const x0 = Array(n).fill("0");
+  return { A, b, x0 };
+}
 
 function fmt6(v) {
   if (v === null || v === undefined) return "-";
@@ -123,20 +136,21 @@ function AvisoDomDiag({ A }) {
 }
 
 export default function GaussSeidel() {
-  const [tamanho,  setTamanho]  = useState(3);
-  const [matrizA,  setMatrizA]  = useState(gerarMatriz(3));
-  const [vetorB,   setVetorB]   = useState(gerarVetor(3));
-  const [vetorX0,  setVetorX0]  = useState(gerarVetor(3));
-  const [tolerancia, setTolerancia] = useState("");
-  const [modo,     setModo]     = useState("basico");
-  const [erroVal,  setErroVal]  = useState("");
-  const [chaveInt, setChaveInt] = useState(0);
-  const [params,   setParams]   = useState(null);
+  const [tamanho,    setTamanho]    = useState(3);
+  const [matrizA,    setMatrizA]    = useState(() => gerarExemplo(3).A);
+  const [vetorB,     setVetorB]     = useState(() => gerarExemplo(3).b);
+  const [vetorX0,    setVetorX0]    = useState(() => gerarExemplo(3).x0);
+  const [tolerancia, setTolerancia] = useState("0.001");
+  const [modo,       setModo]       = useState("basico");
+  const [erroVal,    setErroVal]    = useState("");
+  const [chaveInt,   setChaveInt]   = useState(0);
+  const [params,     setParams]     = useState(null);
 
   const { calcular, resultado, erro: erroApi, carregando, limpar } = useGaussSeidel();
 
   function mudarTamanho(n) {
-    setTamanho(n); setMatrizA(gerarMatriz(n)); setVetorB(gerarVetor(n)); setVetorX0(gerarVetor(n));
+    const ex = gerarExemplo(n);
+    setTamanho(n); setMatrizA(ex.A); setVetorB(ex.b); setVetorX0(ex.x0);
     limpar(); setErroVal("");
   }
 
@@ -175,9 +189,10 @@ export default function GaussSeidel() {
     setChaveInt(k => k + 1);
   }
 
-  const erroExibido  = erroVal || erroApi;
-  const iteracoes    = resultado?.iteracoes ?? [];
+  const erroExibido   = erroVal || erroApi;
+  const iteracoes     = resultado?.iteracoes ?? [];
   const matrizParcial = matrizA.every(row => row.every(v => v !== ""));
+  const larguraCelula = tamanho <= 5 ? 58 : tamanho <= 7 ? 50 : 44;
 
   return (
     <div style={{ padding: 24, fontFamily: "sans-serif" }}>
@@ -191,9 +206,9 @@ export default function GaussSeidel() {
       {/* Tamanho */}
       <div style={{ marginBottom: 20 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: "#444", marginRight: 10 }}>Tamanho do sistema:</span>
-        {[2, 3, 4, 5].map(n => (
+        {[2,3,4,5,6,7,8,9,10].map(n => (
           <button key={n} onClick={() => mudarTamanho(n)} style={{
-            marginRight: 6, padding: "5px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13,
+            marginRight: 4, padding: "5px 11px", borderRadius: 6, cursor: "pointer", fontSize: 13,
             border: tamanho === n ? "2px solid #3c3489" : "1px solid #ccc",
             background: tamanho === n ? "#eeedfe" : "#fff",
             color: tamanho === n ? "#3c3489" : "#555",
@@ -210,7 +225,7 @@ export default function GaussSeidel() {
             {matrizA.map((row, i) => (
               <div key={i} style={{ display: "flex", gap: 4 }}>
                 {row.map((v, j) => (
-                  <CelulaInput key={j} value={v} onChange={val => setA(i, j, val)} placeholder={`a${i+1}${j+1}`} destaque={i === j} />
+                  <CelulaInput key={j} value={v} onChange={val => setA(i, j, val)} placeholder={`a${i+1}${j+1}`} destaque={i === j} largura={larguraCelula} />
                 ))}
               </div>
             ))}

@@ -18,7 +18,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 
-const SUB = ["₀","₁","₂","₃","₄","₅"];
+const SUB = ["₀","₁","₂","₃","₄","₅","₆","₇","₈","₉"];
 
 function fmt(v, c = 4)  { return parseFloat(Number(v).toFixed(c)); }
 function fmtS(v, c = 6) { return Number(v).toFixed(c); }

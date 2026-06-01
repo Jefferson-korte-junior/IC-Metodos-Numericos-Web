@@ -39,11 +39,11 @@ function CampoNumerico({ label, value, onChange, placeholder, step = "any" }) {
 }
 
 export default function Secante() {
-  const [funcao,          setFuncao]          = useState("");
-  const [x0,              setX0]              = useState("");
-  const [x1,              setX1]              = useState("");
-  const [tolerancia,      setTolerancia]      = useState("");
-  const [maxIter,         setMaxIter]         = useState("");
+  const [funcao,          setFuncao]          = useState("x**3 - x - 2");
+  const [x0,              setX0]              = useState("1");
+  const [x1,              setX1]              = useState("2");
+  const [tolerancia,      setTolerancia]      = useState("0.0001");
+  const [maxIter,         setMaxIter]         = useState("50");
   const [criterio,        setCriterio]        = useState("absoluto");
   const [modo,            setModo]            = useState("basico");
   const [erroValidacao,   setErroValidacao]   = useState("");

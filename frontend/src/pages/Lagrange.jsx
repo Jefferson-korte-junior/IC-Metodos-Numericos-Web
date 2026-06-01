@@ -9,9 +9,16 @@ const MODOS = [
   { value: "interativo",    label: "Interativo"     },
 ];
 
-const SUB = ["₀","₁","₂","₃","₄","₅"];
+const SUB = ["₀","₁","₂","₃","₄","₅","₆","₇","₈","₉"];
 
 function gerarPontos(n) { return Array.from({ length: n }, () => ["", ""]); }
+
+// Amostra f(x) = x² nos inteiros 1…n e usa x_eval = ponto médio
+function gerarExemploLagrange(n) {
+  const pontos = Array.from({ length: n }, (_, i) => [String(i + 1), String((i + 1) ** 2)]);
+  const xEval  = String(((1 + n) / 2).toFixed(1));
+  return { pontos, xEval };
+}
 
 function fmt6(v) {
   if (v === null || v === undefined) return "-";
@@ -128,8 +135,8 @@ function ResultadoLagrange({ resultado: res, modo }) {
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function Lagrange() {
   const [numPontos, setNumPontos] = useState(3);
-  const [pontos,    setPontos]    = useState(gerarPontos(3));
-  const [xEval,     setXEval]     = useState("");
+  const [pontos,    setPontos]    = useState(() => gerarExemploLagrange(3).pontos);
+  const [xEval,     setXEval]     = useState(() => gerarExemploLagrange(3).xEval);
   const [modo,      setModo]      = useState("basico");
   const [erroVal,   setErroVal]   = useState("");
   const [chaveInt,  setChaveInt]  = useState(0);
@@ -138,8 +145,10 @@ export default function Lagrange() {
   const { calcular, resultado, erro: erroApi, carregando, limpar } = useLagrange();
 
   function mudarNumPontos(n) {
+    const ex = gerarExemploLagrange(n);
     setNumPontos(n);
-    setPontos(gerarPontos(n));
+    setPontos(ex.pontos);
+    setXEval(ex.xEval);
     limpar(); setErroVal("");
   }
 
@@ -189,9 +198,9 @@ export default function Lagrange() {
       {/* Número de pontos */}
       <div style={{ marginBottom: 20 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: "#444", marginRight: 10 }}>Número de pontos:</span>
-        {[2, 3, 4, 5, 6].map(n => (
+        {[2,3,4,5,6,7,8,9,10].map(n => (
           <button key={n} onClick={() => mudarNumPontos(n)} style={{
-            marginRight: 6, padding: "5px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13,
+            marginRight: 4, padding: "5px 11px", borderRadius: 6, cursor: "pointer", fontSize: 13,
             border: numPontos === n ? "2px solid #3c3489" : "1px solid #ccc",
             background: numPontos === n ? "#eeedfe" : "#fff",
             color: numPontos === n ? "#3c3489" : "#555",

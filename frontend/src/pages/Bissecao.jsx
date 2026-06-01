@@ -87,11 +87,11 @@ function CampoNumerico({ label, value, onChange, placeholder, step = "any" }) {
 // ── Página principal ─────────────────────────────────────────────────────────
 export default function Bissecao() {
   const [nivelDetalhe,    setNivelDetalhe]    = useState("basico");
-  const [funcao,          setFuncao]          = useState("");
-  const [valA,            setValA]            = useState("");
-  const [valB,            setValB]            = useState("");
-  const [tolerancia,      setTolerancia]      = useState("");
-  const [maxIter,         setMaxIter]         = useState("");
+  const [funcao,          setFuncao]          = useState("x**3 - x - 2");
+  const [valA,            setValA]            = useState("1");
+  const [valB,            setValB]            = useState("2");
+  const [tolerancia,      setTolerancia]      = useState("0.001");
+  const [maxIter,         setMaxIter]         = useState("50");
   const [erroValidacao,   setErroValidacao]   = useState("");
   const [chaveInterativo, setChaveInterativo] = useState(0);
 
