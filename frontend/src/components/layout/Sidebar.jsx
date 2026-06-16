@@ -42,10 +42,27 @@ function IconIntegrais() {
   );
 }
 
+function IconAproximacao() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 22 22" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Scattered data points */}
+      <circle cx="3"  cy="16" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="7"  cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="10" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="7"  r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="5"  r="1.5" fill="currentColor" stroke="none" />
+      {/* Regression line */}
+      <line x1="2" y1="17" x2="20" y2="4" strokeDasharray="3,2" opacity="0.7" />
+    </svg>
+  );
+}
+
 const MENU_ITEMS = [
   { label: "Zeros de Funções",  categoria: "Zero de Funções",  Icon: IconZeros        },
   { label: "Sistemas Lineares", categoria: "Sistemas Lineares", Icon: IconSistemas     },
   { label: "Interpolação",      categoria: "Interpolação",      Icon: IconInterpolacao },
+  { label: "Aproximação",       categoria: "Aproximação",       Icon: IconAproximacao  },
   { label: "Integrais",         categoria: "Integrais",         Icon: IconIntegrais    },
 ];
 

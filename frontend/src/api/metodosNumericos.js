@@ -9,7 +9,8 @@
  */
 
 const BASE_URL =
-  import.meta.env.VITE_API_URL ?? "https://ic-metodos-numericos-web.onrender.com";
+  process.env.REACT_APP_API_URL ??
+  "https://ic-metodos-numericos-web.onrender.com";
 
 // ─── Helper interno ──────────────────────────────────────────────────────────
 async function post(endpoint, payload) {
@@ -84,4 +85,19 @@ export async function calcularGaussSeidel({ A, b, chute, tolerancia }) {
 // ─── Lagrange ────────────────────────────────────────────────────────────────
 export async function calcularLagrange({ pontos, x_eval }) {
   return post("/lagrange", { pontos, x_eval });
+}
+
+// ─── Mínimos Quadrados ───────────────────────────────────────────────────────
+export async function calcularMinimosQuadrados({ pontos, grau }) {
+  return post("/minimos-quadrados", { pontos, grau: parseInt(grau) });
+}
+
+// ─── Trapézio ────────────────────────────────────────────────────────────────
+export async function calcularTrapezio({ funcao, a, b, n }) {
+  return post("/trapezio", { funcao, a: parseFloat(a), b: parseFloat(b), n: parseInt(n) });
+}
+
+// ─── Simpson 1/3 ─────────────────────────────────────────────────────────────
+export async function calcularSimpson({ funcao, a, b, n }) {
+  return post("/simpson", { funcao, a: parseFloat(a), b: parseFloat(b), n: parseInt(n) });
 }

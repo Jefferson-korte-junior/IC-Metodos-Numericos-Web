@@ -23,6 +23,9 @@ from methods.zeroDeFuncoes.secante import secante
 from methods.sistemasLineares.jacobi import jacobi
 from methods.sistemasLineares.gauss_seidel import gauss_seidel
 from methods.interpolacao.lagrange import lagrange
+from methods.aproximacao.minimos_quadrados import minimos_quadrados
+from methods.integrais.trapezio import trapezio
+from methods.integrais.simpson  import simpson
 
 app = FastAPI(title="IC — API de Métodos Numéricos")
 
@@ -75,6 +78,18 @@ class EntradaSistema(BaseModel):
 class EntradaLagrange(BaseModel):
     pontos: list   # list of [x, y] pairs
     x_eval: float
+
+
+class EntradaMinimoQuadrado(BaseModel):
+    pontos: list   # list of [x, y] pairs
+    grau:   int    # polynomial degree (1, 2 or 3)
+
+
+class EntradaIntegral(BaseModel):
+    funcao: str
+    a:      float
+    b:      float
+    n:      int
 
 
 # ---------------------------------------------------------------------------
@@ -143,6 +158,33 @@ async def endpoint_lagrange(data: EntradaLagrange):
     """Interpolação de Lagrange."""
     try:
         return lagrange(data.pontos, data.x_eval)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/minimos-quadrados")
+async def endpoint_minimos_quadrados(data: EntradaMinimoQuadrado):
+    """Aproximação por Mínimos Quadrados (regressão polinomial)."""
+    try:
+        return minimos_quadrados(data.pontos, data.grau)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/trapezio")
+async def endpoint_trapezio(data: EntradaIntegral):
+    """Integração pela Regra dos Trapézios Composta."""
+    try:
+        return trapezio(data.funcao, data.a, data.b, data.n)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/simpson")
+async def endpoint_simpson(data: EntradaIntegral):
+    """Integração pela Regra de Simpson 1/3 Composta."""
+    try:
+        return simpson(data.funcao, data.a, data.b, data.n)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 

@@ -1,14 +1,15 @@
 import Botao from "../UI/Botao";
 
 const METODO_ICONES = {
-  "Bisseção":    "∩",
-  "Newton":      "∂",
-  "Secante":     "⟋",
-  "Jacobi":      "⊕",
-  "Gauss-Seidel":"⊗",
-  "Lagrange":    "∿",
-  "Trapézio":    "◺",
-  "Simpson":     "∫",
+  "Bisseção":          "∩",
+  "Newton":            "∂",
+  "Secante":           "⟋",
+  "Jacobi":            "⊕",
+  "Gauss-Seidel":      "⊗",
+  "Lagrange":          "∿",
+  "Mínimos Quadrados": "≈",
+  "Trapézio":          "◺",
+  "Simpson":           "∫",
 };
 
 function TopMenu({ categoriaSelecionada, aoSelecionarMetodo, metodoAtivo }) {
@@ -16,6 +17,7 @@ function TopMenu({ categoriaSelecionada, aoSelecionarMetodo, metodoAtivo }) {
     "Zero de Funções":   ["Bisseção", "Newton", "Secante"],
     "Sistemas Lineares": ["Jacobi", "Gauss-Seidel"],
     "Interpolação":      ["Lagrange", "Newton"],
+    "Aproximação":       ["Mínimos Quadrados"],
     "Integrais":         ["Trapézio", "Simpson"],
   };
 

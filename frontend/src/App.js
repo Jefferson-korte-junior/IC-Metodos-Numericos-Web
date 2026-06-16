@@ -9,19 +9,25 @@ import Newton      from "./pages/Newton";
 import Secante     from "./pages/Secante";
 import Jacobi      from "./pages/Jacobi";
 import GaussSeidel from "./pages/GaussSeidel";
-import Lagrange    from "./pages/Lagrange";
+import Lagrange         from "./pages/Lagrange";
+import MinimosQuadrados from "./pages/MinimosQuadrados";
+import Trapezio         from "./pages/Trapezio";
+import Simpson          from "./pages/Simpson";
 
 /**
  * Registro de todos os métodos disponíveis.
  * Para adicionar um novo método, basta incluir uma entrada aqui.
  */
 const METODOS = [
-  { nome: "Bisseção",      Componente: Bissecao     },
-  { nome: "Newton",        Componente: Newton       },
-  { nome: "Secante",       Componente: Secante      },
-  { nome: "Jacobi",        Componente: Jacobi       },
-  { nome: "Gauss-Seidel",  Componente: GaussSeidel  },
-  { nome: "Lagrange",      Componente: Lagrange     },
+  { nome: "Bisseção",           Componente: Bissecao          },
+  { nome: "Newton",             Componente: Newton            },
+  { nome: "Secante",            Componente: Secante           },
+  { nome: "Jacobi",             Componente: Jacobi            },
+  { nome: "Gauss-Seidel",       Componente: GaussSeidel       },
+  { nome: "Lagrange",           Componente: Lagrange          },
+  { nome: "Mínimos Quadrados",  Componente: MinimosQuadrados  },
+  { nome: "Trapézio",           Componente: Trapezio          },
+  { nome: "Simpson",            Componente: Simpson           },
 ];
 
 function App() {
