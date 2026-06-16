@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/IC-Metodos-Numericos-Web/static/css/main.a476252c.css",
-    "main.js": "/IC-Metodos-Numericos-Web/static/js/main.18626e3a.js",
+    "main.js": "/IC-Metodos-Numericos-Web/static/js/main.17713470.js",
     "static/js/453.825386d9.chunk.js": "/IC-Metodos-Numericos-Web/static/js/453.825386d9.chunk.js",
     "static/media/KaTeX_AMS-Regular.ttf": "/IC-Metodos-Numericos-Web/static/media/KaTeX_AMS-Regular.853be92419a6c3766b9a.ttf",
     "static/media/KaTeX_Main-Regular.ttf": "/IC-Metodos-Numericos-Web/static/media/KaTeX_Main-Regular.9eba1d77abcf2aa6e94e.ttf",
@@ -65,11 +65,11 @@
     "static/media/KaTeX_Size3-Regular.woff2": "/IC-Metodos-Numericos-Web/static/media/KaTeX_Size3-Regular.e1951519f6f0596f7356.woff2",
     "index.html": "/IC-Metodos-Numericos-Web/index.html",
     "main.a476252c.css.map": "/IC-Metodos-Numericos-Web/static/css/main.a476252c.css.map",
-    "main.18626e3a.js.map": "/IC-Metodos-Numericos-Web/static/js/main.18626e3a.js.map",
+    "main.17713470.js.map": "/IC-Metodos-Numericos-Web/static/js/main.17713470.js.map",
     "453.825386d9.chunk.js.map": "/IC-Metodos-Numericos-Web/static/js/453.825386d9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a476252c.css",
-    "static/js/main.18626e3a.js"
+    "static/js/main.17713470.js"
   ]
 }
