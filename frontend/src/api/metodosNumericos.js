@@ -87,6 +87,11 @@ export async function calcularLagrange({ pontos, x_eval }) {
   return post("/lagrange", { pontos, x_eval });
 }
 
+// ─── Newton Interpolação ─────────────────────────────────────────────────────
+export async function calcularNewtonInterpolacao({ pontos, x_eval }) {
+  return post("/newton-interpolacao", { pontos, x_eval });
+}
+
 // ─── Mínimos Quadrados ───────────────────────────────────────────────────────
 export async function calcularMinimosQuadrados({ pontos, grau }) {
   return post("/minimos-quadrados", { pontos, grau: parseInt(grau) });

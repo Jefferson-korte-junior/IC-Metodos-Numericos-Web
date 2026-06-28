@@ -9,7 +9,8 @@ import Newton      from "./pages/Newton";
 import Secante     from "./pages/Secante";
 import Jacobi      from "./pages/Jacobi";
 import GaussSeidel from "./pages/GaussSeidel";
-import Lagrange         from "./pages/Lagrange";
+import Lagrange              from "./pages/Lagrange";
+import NewtonInterpolacao    from "./pages/NewtonInterpolacao";
 import MinimosQuadrados from "./pages/MinimosQuadrados";
 import Trapezio         from "./pages/Trapezio";
 import Simpson          from "./pages/Simpson";
@@ -25,6 +26,7 @@ const METODOS = [
   { nome: "Jacobi",             Componente: Jacobi            },
   { nome: "Gauss-Seidel",       Componente: GaussSeidel       },
   { nome: "Lagrange",           Componente: Lagrange          },
+  { nome: "Newton Interpolação", Componente: NewtonInterpolacao },
   { nome: "Mínimos Quadrados",  Componente: MinimosQuadrados  },
   { nome: "Trapézio",           Componente: Trapezio          },
   { nome: "Simpson",            Componente: Simpson           },

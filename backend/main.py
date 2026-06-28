@@ -23,6 +23,7 @@ from methods.zeroDeFuncoes.secante import secante
 from methods.sistemasLineares.jacobi import jacobi
 from methods.sistemasLineares.gauss_seidel import gauss_seidel
 from methods.interpolacao.lagrange import lagrange
+from methods.interpolacao.newton_interpolacao import newton_interpolacao
 from methods.aproximacao.minimos_quadrados import minimos_quadrados
 from methods.integrais.trapezio import trapezio
 from methods.integrais.simpson  import simpson
@@ -73,6 +74,11 @@ class EntradaSistema(BaseModel):
 
 
 class EntradaLagrange(BaseModel):
+    pontos: list   # list of [x, y] pairs
+    x_eval: float
+
+
+class EntradaNewtonInterpolacao(BaseModel):
     pontos: list   # list of [x, y] pairs
     x_eval: float
 
@@ -155,6 +161,15 @@ async def endpoint_lagrange(data: EntradaLagrange):
     """Interpolação de Lagrange."""
     try:
         return lagrange(data.pontos, data.x_eval)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/newton-interpolacao")
+async def endpoint_newton_interpolacao(data: EntradaNewtonInterpolacao):
+    """Interpolação de Newton por Diferenças Divididas."""
+    try:
+        return newton_interpolacao(data.pontos, data.x_eval)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
