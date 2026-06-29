@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNewton } from "../hooks/useNewton";
 import NewtonInterativo from "../components/newton/NewtonInterativo";
+import GraficoZeros     from "../components/graficos/GraficoZeros";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -223,6 +224,22 @@ export default function Newton() {
           iteracoesBackend={iteracoes}
         />
       )}
+
+      {/* Gráfico */}
+      {iteracoes.length > 0 && modo !== "interativo" && (() => {
+        const xVals = iteracoes.map(it => it.x).concat(iteracoes.map(it => it.x_novo)).filter(Number.isFinite);
+        const xMin = Math.min(...xVals);
+        const xMax = Math.max(...xVals);
+        return (
+          <GraficoZeros
+            funcao={funcao}
+            xMin={xMin}
+            xMax={xMax}
+            pontosIter={iteracoes.map(it => ({ x: it.x, y: it.fx }))}
+            raiz={resultado?.raiz}
+          />
+        );
+      })()}
     </div>
   );
 }

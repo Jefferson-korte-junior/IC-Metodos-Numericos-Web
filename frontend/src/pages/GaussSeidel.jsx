@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGaussSeidel } from "../hooks/useGaussSeidel";
 import GaussSeidelInterativo from "../components/sistemasLineares/GaussSeidelInterativo";
+import GraficoConvergencia   from "../components/graficos/GraficoConvergencia";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -315,6 +316,11 @@ export default function GaussSeidel() {
           chute={params.chute} tolerancia={params.tolerancia}
           iteracoesBackend={iteracoes}
         />
+      )}
+
+      {/* Gráfico de convergência */}
+      {iteracoes.length > 0 && modo !== "interativo" && (
+        <GraficoConvergencia iteracoes={iteracoes} n={tamanho} />
       )}
     </div>
   );

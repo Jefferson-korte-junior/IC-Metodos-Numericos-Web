@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSecante } from "../hooks/useSecante";
 import SecanteInterativa from "../components/secante/SecanteInterativa";
+import GraficoZeros      from "../components/graficos/GraficoZeros";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -227,6 +228,22 @@ export default function Secante() {
           iteracoesBackend={iteracoes}
         />
       )}
+
+      {/* Gráfico */}
+      {iteracoes.length > 0 && modo !== "interativo" && (() => {
+        const xVals = iteracoes.flatMap(it => [it.x_anterior, it.x, it.x_novo]).filter(Number.isFinite);
+        const xMin = Math.min(...xVals);
+        const xMax = Math.max(...xVals);
+        return (
+          <GraficoZeros
+            funcao={funcao}
+            xMin={xMin}
+            xMax={xMax}
+            pontosIter={iteracoes.map(it => ({ x: it.x, y: it.fx }))}
+            raiz={resultado?.raiz}
+          />
+        );
+      })()}
     </div>
   );
 }

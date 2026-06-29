@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useJacobi } from "../hooks/useJacobi";
-import JacobiInterativo from "../components/sistemasLineares/JacobiInterativo";
+import JacobiInterativo    from "../components/sistemasLineares/JacobiInterativo";
+import GraficoConvergencia from "../components/graficos/GraficoConvergencia";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -334,6 +335,11 @@ export default function Jacobi() {
           chute={params.chute} tolerancia={params.tolerancia}
           iteracoesBackend={iteracoes}
         />
+      )}
+
+      {/* Gráfico de convergência */}
+      {iteracoes.length > 0 && modo !== "interativo" && (
+        <GraficoConvergencia iteracoes={iteracoes} n={tamanho} />
       )}
     </div>
   );

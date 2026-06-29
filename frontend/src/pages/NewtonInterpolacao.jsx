@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNewtonInterpolacao } from "../hooks/useNewtonInterpolacao";
 import NewtonInterpolacaoInterativo from "../components/interpolacao/NewtonInterpolacaoInterativo";
+import GraficoInterpolacao          from "../components/graficos/GraficoInterpolacao";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -375,6 +376,17 @@ export default function NewtonInterpolacao() {
           coeficientes={resultado.coeficientes}
           termos={resultado.termos}
           resultado={resultado.resultado}
+        />
+      )}
+
+      {/* Gráfico do polinômio interpolador */}
+      {resultado && modo !== "interativo" && (
+        <GraficoInterpolacao
+          pontos={pontos}
+          xEval={parseFloat(xEval)}
+          yEval={resultado.resultado}
+          metodo="newton"
+          coefs={resultado.coeficientes}
         />
       )}
     </div>

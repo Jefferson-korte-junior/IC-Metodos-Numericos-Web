@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMinimosQuadrados } from "../hooks/useMinimosQuadrados";
-import MinimosQuadradosInterativo from "../components/aproximacao/MinimosQuadradosInterativo";
+import MinimosQuadradosInterativo  from "../components/aproximacao/MinimosQuadradosInterativo";
+import GraficoMinimosQuadrados     from "../components/graficos/GraficoMinimosQuadrados";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -459,6 +460,16 @@ export default function MinimosQuadrados() {
           pontos={params.pontos}
           grau={params.grau}
           resultado={resultado}
+        />
+      )}
+
+      {/* Gráfico de regressão */}
+      {resultado && modo !== "interativo" && (
+        <GraficoMinimosQuadrados
+          pontos={pontos}
+          coeficientes={resultado.coeficientes}
+          grau={resultado.grau}
+          rQuadrado={resultado.r_quadrado}
         />
       )}
     </div>

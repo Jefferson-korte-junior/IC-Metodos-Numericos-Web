@@ -8,6 +8,7 @@ import React, { useState, useEffect, useRef } from "react";
 import CardIteracaoBissecao from "../components/bisseccao/CardIteracaoBissecao";
 import BissecaoInterativa   from "../components/bisseccao/BissecaoInterativa";
 import { useBissecao }      from "../hooks/useBissecao";
+import GraficoZeros         from "../components/graficos/GraficoZeros";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
@@ -295,6 +296,17 @@ export default function Bissecao() {
           b={parseFloat(valB)}
           tolerancia={parseFloat(tolerancia)}
           iteracoesBackend={iteracoes}   // ← passa dados prontos do backend
+        />
+      )}
+
+      {/* Gráfico — visível em todos os modos exceto interativo */}
+      {iteracoes.length > 0 && nivelDetalhe !== "interativo" && (
+        <GraficoZeros
+          funcao={funcao}
+          xMin={parseFloat(valA)}
+          xMax={parseFloat(valB)}
+          pontosIter={iteracoes.map(it => ({ x: it.media, y: it.fm }))}
+          raiz={raiz}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLagrange } from "../hooks/useLagrange";
-import LagrangeInterativo from "../components/interpolacao/LagrangeInterativo";
+import LagrangeInterativo  from "../components/interpolacao/LagrangeInterativo";
+import GraficoInterpolacao from "../components/graficos/GraficoInterpolacao";
 
 const MODOS = [
   { value: "basico",        label: "Básico"        },
@@ -305,6 +306,16 @@ export default function Lagrange() {
           x_eval={params.x_eval}
           termos={termos}
           resultado={resultado.resultado}
+        />
+      )}
+
+      {/* Gráfico do polinômio interpolador */}
+      {resultado && modo !== "interativo" && (
+        <GraficoInterpolacao
+          pontos={pontos}
+          xEval={parseFloat(xEval)}
+          yEval={resultado.resultado}
+          metodo="lagrange"
         />
       )}
     </div>
